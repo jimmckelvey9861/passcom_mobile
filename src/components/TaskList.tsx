@@ -2,14 +2,20 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, Settings, Search, SlidersHorizontal, Eye, Bell } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown, Settings, Search, SlidersHorizontal, Eye, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 
 export default function TasksPage() {
   const router = useRouter()
 
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [isOpenTasksExpanded, setIsOpenTasksExpanded] = useState(true)
+  const [isDoneTasksExpanded, setIsDoneTasksExpanded] = useState(true)
+  const [isDateOpen, setIsDateOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<"Day" | "Week" | "Month">("Day")
 
   const [tasks, setTasks] = useState([
     {
@@ -60,13 +66,27 @@ export default function TasksPage() {
   // Date navigation functions
   const goToPreviousDay = () => {
     const newDate = new Date(currentDate)
-    newDate.setDate(newDate.getDate() - 1)
+    if (viewMode === "Week") {
+      newDate.setDate(newDate.getDate() - 7)
+    } else if (viewMode === "Month") {
+      newDate.setMonth(newDate.getMonth() - 1)
+    } else {
+      // Day mode
+      newDate.setDate(newDate.getDate() - 1)
+    }
     setCurrentDate(newDate)
   }
 
   const goToNextDay = () => {
     const newDate = new Date(currentDate)
-    newDate.setDate(newDate.getDate() + 1)
+    if (viewMode === "Week") {
+      newDate.setDate(newDate.getDate() + 7)
+    } else if (viewMode === "Month") {
+      newDate.setMonth(newDate.getMonth() + 1)
+    } else {
+      // Day mode
+      newDate.setDate(newDate.getDate() + 1)
+    }
     setCurrentDate(newDate)
   }
 
@@ -89,7 +109,41 @@ export default function TasksPage() {
     return date.toLocaleDateString("en-US", options)
   }
 
+  const getWeekRange = (date: Date) => {
+    const start = new Date(date)
+    const day = start.getDay()
+    const diff = start.getDate() - day
+    start.setDate(diff)
+    
+    const end = new Date(start)
+    end.setDate(start.getDate() + 6)
+    
+    const formatShort = (d: Date) => {
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    }
+    
+    return `${formatShort(start)} - ${formatShort(end)}`
+  }
+
+  const getMonthRange = (date: Date) => {
+    const start = new Date(date.getFullYear(), date.getMonth(), 1)
+    const end = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    
+    const formatShort = (d: Date) => {
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    }
+    
+    return `${formatShort(start)} - ${formatShort(end)}`
+  }
+
   const getDateDisplayText = () => {
+    if (viewMode === "Week") {
+      return getWeekRange(currentDate)
+    }
+    if (viewMode === "Month") {
+      return getMonthRange(currentDate)
+    }
+    // Day mode
     if (isToday(currentDate)) {
       return "Today"
     }
@@ -108,7 +162,45 @@ export default function TasksPage() {
           <button onClick={goToPreviousDay} className="h-auto p-3 shrink-0 flex items-center justify-center">
             <ChevronLeft size={24} />
           </button>
-          <span className="text-sm text-gray-600 whitespace-nowrap flex-1 text-center">{getDateDisplayText()}</span>
+          
+          <Popover open={isDateOpen} onOpenChange={setIsDateOpen}>
+            <PopoverTrigger asChild>
+              <button className="text-sm text-gray-600 whitespace-nowrap flex-1 text-center hover:text-gray-900 transition-colors">
+                {getDateDisplayText()}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="center">
+              <div className="p-3 bg-gray-100">
+                <div className="flex gap-2 bg-gray-200 rounded-lg p-1">
+                  {(["Day", "Week", "Month"] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => setViewMode(mode)}
+                      className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${
+                        viewMode === mode
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <Calendar
+                mode="single"
+                selected={currentDate}
+                onSelect={(date) => {
+                  if (date) {
+                    setCurrentDate(date)
+                    setIsDateOpen(false)
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
           <button onClick={goToNextDay} className="h-auto p-3 shrink-0 flex items-center justify-center">
             <ChevronRight size={24} />
           </button>
@@ -139,11 +231,19 @@ export default function TasksPage() {
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
         {/* Open Tasks Section */}
         <div className="space-y-3">
-          <button className="flex items-center gap-2 text-blue-500 font-semibold text-lg">
-            Open tasks ({openTasks.length}) <ChevronRight className="h-5 w-5" />
+          <button
+            onClick={() => setIsOpenTasksExpanded(!isOpenTasksExpanded)}
+            className="flex items-center gap-2 text-blue-500 font-semibold text-lg w-full"
+          >
+            <span>Open tasks ({openTasks.length})</span>
+            <ChevronDown
+              className={`h-5 w-5 transition-transform duration-200 ${
+                isOpenTasksExpanded ? "" : "-rotate-90"
+              }`}
+            />
           </button>
 
-          {openTasks.map((task) => (
+          {isOpenTasksExpanded && openTasks.map((task) => (
             <div
               key={task.id}
               className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 min-h-[68px] flex items-center justify-between cursor-pointer"
@@ -171,11 +271,19 @@ export default function TasksPage() {
 
         {/* Done Tasks Section */}
         <div className="space-y-3">
-          <button className="flex items-center gap-2 text-gray-400 font-semibold text-lg">
-            Done tasks ({completedTasks.length}) <ChevronRight className="h-5 w-5" />
+          <button
+            onClick={() => setIsDoneTasksExpanded(!isDoneTasksExpanded)}
+            className="flex items-center gap-2 text-gray-400 font-semibold text-lg w-full"
+          >
+            <span>Done tasks ({completedTasks.length})</span>
+            <ChevronDown
+              className={`h-5 w-5 transition-transform duration-200 ${
+                isDoneTasksExpanded ? "" : "-rotate-90"
+              }`}
+            />
           </button>
 
-          {completedTasks.map((task) => (
+          {isDoneTasksExpanded && completedTasks.map((task) => (
             <div
               key={task.id}
               className="bg-green-50 rounded-lg p-4 shadow-sm border border-gray-200 min-h-[68px] flex items-center justify-between cursor-pointer"
