@@ -153,7 +153,7 @@ export default function TasksPage() {
   const openTasks = filteredTasks.filter((task) => !task.completed)
   const completedTasks = filteredTasks.filter((task) => task.completed)
 
-  // Calculate actual overdue tasks with strict validation
+  // Calculate actual overdue tasks with strict validation (only MY tasks)
   const overdueTasks = useMemo(() => {
     const now = new Date()
     const filtered = tasks.filter(task => {
@@ -178,24 +178,29 @@ export default function TasksPage() {
       // Check if due date is in the past
       const isOverdue = dueDate.getTime() < now.getTime()
       
-      return isOverdue
+      // Only count tasks assigned to ME
+      const isMyTask = task.assigneeId === currentUserId
+      
+      return isOverdue && isMyTask
     })
     
-    console.log('Overdue Tasks Calculation:', {
+    console.log('Overdue Tasks Calculation (My Tasks Only):', {
       totalTasks: tasks.length,
-      overdueCount: filtered.length,
+      myOverdueCount: filtered.length,
+      currentUserId: currentUserId,
       now: now.toISOString(),
-      overdueTasks: filtered.map(t => ({
+      myOverdueTasks: filtered.map(t => ({
         id: t.id,
         title: t.title,
         dueTime: t.dueTime,
         status: t.status,
-        completed: t.completed
+        completed: t.completed,
+        assigneeId: t.assigneeId
       }))
     })
     
     return filtered
-  }, [tasks])
+  }, [tasks, currentUserId])
   
   const hasOverdueTasks = overdueTasks.length > 0
 
