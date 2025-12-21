@@ -102,7 +102,20 @@ export default function TasksPage() {
       )
     }
 
-    // 6. Sort
+    // 6. Filter by Date Range
+    if (selectedDateRange) {
+      result = result.filter(task => {
+        if (!task.dueTime) return false
+        const taskDueDate = new Date(task.dueTime)
+        const startDate = new Date(selectedDateRange.start)
+        startDate.setHours(0, 0, 0, 0)
+        const endDate = new Date(selectedDateRange.end)
+        endDate.setHours(23, 59, 59, 999)
+        return taskDueDate >= startDate && taskDueDate <= endDate
+      })
+    }
+
+    // 7. Sort
     result.sort((a, b) => {
       switch (selectedDateSortOption) {
         case "due-earliest":
@@ -135,7 +148,7 @@ export default function TasksPage() {
     })
 
     return result
-  }, [tasks, searchQuery, statusFilters, labelFilters, assigneeFilters, creatorFilters, selectedDateSortOption])
+  }, [tasks, searchQuery, statusFilters, labelFilters, assigneeFilters, creatorFilters, selectedDateRange, selectedDateSortOption])
 
   const openTasks = filteredTasks.filter((task) => !task.completed)
   const completedTasks = filteredTasks.filter((task) => task.completed)

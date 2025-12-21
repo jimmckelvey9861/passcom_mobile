@@ -51,6 +51,8 @@ export const DUMMY_TASKS = [
     creatorId: "u2",
     labels: ["urgent", "bugs"],
     comments: 5,
+    completed: false,
+    completed: false,
   },
   {
     id: "t2",
@@ -65,6 +67,8 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["marketing", "urgent"],
     comments: 3,
+    completed: false,
+    completed: false,
   },
   {
     id: "t3",
@@ -79,6 +83,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["finance"],
     comments: 1,
+    completed: false,
   },
   
   // TODAY TASKS (To Do status)
@@ -95,6 +100,7 @@ export const DUMMY_TASKS = [
     creatorId: "u3",
     labels: [],
     comments: 0,
+    completed: false,
   },
   {
     id: "t5",
@@ -109,6 +115,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["design", "urgent"],
     comments: 8,
+    completed: false,
   },
   {
     id: "t6",
@@ -123,6 +130,7 @@ export const DUMMY_TASKS = [
     creatorId: "u3",
     labels: ["bugs"],
     comments: 2,
+    completed: false,
   },
   {
     id: "t7",
@@ -137,6 +145,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["documentation"],
     comments: 0,
+    completed: false,
   },
 
   // FUTURE TASKS (To Do and New status)
@@ -153,6 +162,7 @@ export const DUMMY_TASKS = [
     creatorId: "u2",
     labels: ["feature"],
     comments: 1,
+    completed: false,
   },
   {
     id: "t9",
@@ -167,6 +177,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["marketing", "design"],
     comments: 0,
+    completed: false,
   },
   {
     id: "t10",
@@ -181,6 +192,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: [],
     comments: 0,
+    completed: false,
   },
   {
     id: "t11",
@@ -195,6 +207,7 @@ export const DUMMY_TASKS = [
     creatorId: "u3",
     labels: ["urgent"],
     comments: 4,
+    completed: false,
   },
 
   // UNASSIGNED TASKS
@@ -211,6 +224,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["marketing"],
     comments: 0,
+    completed: false,
   },
   {
     id: "t13",
@@ -225,6 +239,7 @@ export const DUMMY_TASKS = [
     creatorId: "u2",
     labels: ["bugs", "urgent"],
     comments: 0,
+    completed: false,
   },
 
   // COMPLETED TASKS (Done status)
@@ -303,6 +318,7 @@ export const DUMMY_TASKS = [
     creatorId: "u3",
     labels: ["bugs", "urgent"],
     comments: 6,
+    completed: false,
   },
   {
     id: "t19",
@@ -317,6 +333,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["marketing", "urgent"],
     comments: 2,
+    completed: false,
   },
   {
     id: "t20",
@@ -331,6 +348,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: [],
     comments: 0,
+    completed: false,
   },
   {
     id: "t21",
@@ -345,6 +363,7 @@ export const DUMMY_TASKS = [
     creatorId: "u2",
     labels: ["design", "marketing"],
     comments: 4,
+    completed: false,
   },
   {
     id: "t22",
@@ -359,6 +378,7 @@ export const DUMMY_TASKS = [
     creatorId: "u2",
     labels: ["feature", "design"],
     comments: 1,
+    completed: false,
   },
   {
     id: "t23",
@@ -373,6 +393,7 @@ export const DUMMY_TASKS = [
     creatorId: "u3",
     labels: ["bugs", "urgent"],
     comments: 8,
+    completed: false,
   },
   {
     id: "t24",
@@ -387,6 +408,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["bugs"],
     comments: 0,
+    completed: false,
   },
   {
     id: "t25",
@@ -416,6 +438,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["urgent"],
     comments: 0,
+    completed: false,
   },
   {
     id: "t27",
@@ -430,6 +453,7 @@ export const DUMMY_TASKS = [
     creatorId: "u2",
     labels: ["feature"],
     comments: 1,
+    completed: false,
   },
   {
     id: "t28",
@@ -444,6 +468,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["urgent", "bugs"],
     comments: 5,
+    completed: false,
   },
   {
     id: "t29",
@@ -458,6 +483,7 @@ export const DUMMY_TASKS = [
     creatorId: "u2",
     labels: ["marketing"],
     comments: 0,
+    completed: false,
   },
   {
     id: "t30",
@@ -472,6 +498,7 @@ export const DUMMY_TASKS = [
     creatorId: "u3",
     labels: ["bugs", "urgent"],
     comments: 3,
+    completed: false,
   },
   {
     id: "t31",
@@ -501,6 +528,7 @@ export const DUMMY_TASKS = [
     creatorId: "u1",
     labels: ["personal"],
     comments: 0,
+    completed: false,
   },
 ]
 
