@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Search, SlidersHorizontal, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -14,29 +14,15 @@ import SortLabelSheet from "@/components/SortLabelSheet"
 import SortUserSheet from "@/components/SortUserSheet"
 import CalendarAgendaView from "@/components/CalendarAgendaView"
 import OverdueTasksModal from "@/components/OverdueTasksModal"
+import { DUMMY_TASKS, DUMMY_USERS, DUMMY_LABELS, CURRENT_USER_ID } from "@/data/dummyTasks"
 
 export default function TasksPage() {
   const router = useRouter()
 
-  // Dummy label data for testing
-  const availableLabels = [
-    { id: "urgent", name: "Urgent", color: "#EF4444" },
-    { id: "design", name: "Design", color: "#3B82F6" },
-    { id: "marketing", name: "Marketing", color: "#A855F7" },
-    { id: "finance", name: "Finance", color: "#10B981" },
-    { id: "personal", name: "Personal", color: "#6B7280" },
-    { id: "bugs", name: "Bugs", color: "#F97316" },
-  ]
-
-  // Dummy user data for testing
-  const currentUserId = "me"
-  const allUsers = [
-    { id: "me", name: "Me", initials: "JM", avatarUrl: null, color: "bg-blue-100" },
-    { id: "unassigned", name: "Unassigned", initials: "?", avatarUrl: null, color: "bg-gray-100" },
-    { id: "sarah", name: "Sarah Connors", initials: "SC", avatarUrl: null, color: "bg-purple-100" },
-    { id: "john", name: "John Smith", initials: "JS", avatarUrl: null, color: "bg-green-100" },
-    { id: "kyle", name: "Kyle Reese", initials: "KR", avatarUrl: null, color: "bg-orange-100" },
-  ]
+  // Use imported dummy data
+  const availableLabels = DUMMY_LABELS
+  const currentUserId = CURRENT_USER_ID
+  const allUsers = DUMMY_USERS
 
   // For "Created By" filter, exclude "Unassigned" since tasks always have a creator
   const creatorUsers = allUsers.filter((user) => user.id !== "unassigned")
@@ -65,80 +51,8 @@ export default function TasksPage() {
   const [assigneeFilters, setAssigneeFilters] = useState<string[]>([])
   const [isOverdueModalVisible, setIsOverdueModalVisible] = useState(false)
 
-  const [tasks, setTasks] = useState([
-    {
-      id: "1",
-      title: "Fix the Whiteboard",
-      subtitle: "Starts Dec 16 4:33 PM - Due Dec 16 5:33 PM",
-      priority: "Draft",
-      completed: false,
-      status: "open",
-      dueDate: new Date(2024, 11, 16), // Dec 16, 2024
-      startTime: new Date(2024, 11, 16, 16, 33).toISOString(),
-      dueTime: new Date(2024, 11, 16, 17, 33).toISOString(),
-      assignedTo: currentUserId,
-      createdBy: currentUserId,
-      labels: ["Maintenance"],
-      comments: 2,
-    },
-    {
-      id: "2",
-      title: "Update Documentation",
-      subtitle: "Starts Dec 17 9:00 AM - Due Dec 17 11:00 AM",
-      priority: "High",
-      completed: false,
-      status: "open",
-      dueDate: new Date(2024, 11, 17), // Dec 17, 2024
-      startTime: new Date(2024, 11, 17, 9, 0).toISOString(),
-      dueTime: new Date(2024, 11, 17, 11, 0).toISOString(),
-      assignedTo: currentUserId,
-      createdBy: "user-2",
-      labels: ["Documentation"],
-      comments: 0,
-    },
-    {
-      id: "3",
-      title: "Wash Hands",
-      subtitle: "Starts Dec 16 4:34 PM - Due Dec 16 5:34 PM",
-      completed: true,
-      status: "done",
-      dueDate: new Date(2024, 11, 16), // Dec 16, 2024
-      startTime: new Date(2024, 11, 16, 16, 34).toISOString(),
-      dueTime: new Date(2024, 11, 16, 17, 34).toISOString(),
-      assignedTo: currentUserId,
-      createdBy: currentUserId,
-      labels: ["Personal"],
-      comments: 1,
-    },
-    {
-      id: "4",
-      title: "Review Code Changes",
-      subtitle: "Starts Dec 18 2:00 PM - Due Dec 18 4:00 PM",
-      completed: true,
-      status: "done",
-      dueDate: new Date(2024, 11, 18), // Dec 18, 2024
-      startTime: new Date(2024, 11, 18, 14, 0).toISOString(),
-      dueTime: new Date(2024, 11, 18, 16, 0).toISOString(),
-      assignedTo: "user-2",
-      createdBy: currentUserId,
-      labels: ["Code Review"],
-      comments: 3,
-    },
-    {
-      id: "5",
-      title: "Team Standup Meeting",
-      subtitle: "Starts Dec 19 10:00 AM - Due Dec 19 10:30 AM",
-      completed: true,
-      status: "done",
-      dueDate: new Date(2024, 11, 19), // Dec 19, 2024
-      startTime: new Date(2024, 11, 19, 10, 0).toISOString(),
-      dueTime: new Date(2024, 11, 19, 10, 30).toISOString(),
-      assignedTo: currentUserId,
-      createdBy: "user-3",
-      labels: ["Meeting"],
-      comments: 0,
-    },
-  ])
+  // Use imported dummy tasks
+  const [tasks, setTasks] = useState(DUMMY_TASKS)
 
   const toggleTask = (id: string | number) => {
     setTasks((prevTasks) =>
@@ -148,8 +62,83 @@ export default function TasksPage() {
     )
   }
 
-  const openTasks = tasks.filter((task) => !task.completed)
-  const completedTasks = tasks.filter((task) => task.completed)
+  // Apply filters and sorting
+  const filteredTasks = useMemo(() => {
+    let result = [...tasks]
+
+    // 1. Search by title
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(task => 
+        task.title.toLowerCase().includes(query)
+      )
+    }
+
+    // 2. Filter by Status
+    if (statusFilters.length > 0) {
+      result = result.filter(task => 
+        statusFilters.includes(task.status)
+      )
+    }
+
+    // 3. Filter by Label (at least one matching label)
+    if (labelFilters.length > 0) {
+      result = result.filter(task => 
+        task.labels && task.labels.some(label => labelFilters.includes(label))
+      )
+    }
+
+    // 4. Filter by Assignee
+    if (assigneeFilters.length > 0) {
+      result = result.filter(task => 
+        assigneeFilters.includes(task.assigneeId)
+      )
+    }
+
+    // 5. Filter by Creator
+    if (creatorFilters.length > 0) {
+      result = result.filter(task => 
+        creatorFilters.includes(task.creatorId)
+      )
+    }
+
+    // 6. Sort
+    result.sort((a, b) => {
+      switch (selectedDateSortOption) {
+        case "due-earliest":
+          // Sort by due date ascending (earliest first)
+          if (!a.dueTime) return 1
+          if (!b.dueTime) return -1
+          return new Date(a.dueTime).getTime() - new Date(b.dueTime).getTime()
+        
+        case "due-latest":
+          // Sort by due date descending (latest first)
+          if (!a.dueTime) return 1
+          if (!b.dueTime) return -1
+          return new Date(b.dueTime).getTime() - new Date(a.dueTime).getTime()
+        
+        case "created-newest":
+          // Sort by creation date descending (newest first)
+          if (!a.createdAt) return 1
+          if (!b.createdAt) return -1
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        
+        case "created-oldest":
+          // Sort by creation date ascending (oldest first)
+          if (!a.createdAt) return 1
+          if (!b.createdAt) return -1
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        
+        default:
+          return 0
+      }
+    })
+
+    return result
+  }, [tasks, searchQuery, statusFilters, labelFilters, assigneeFilters, creatorFilters, selectedDateSortOption])
+
+  const openTasks = filteredTasks.filter((task) => !task.completed)
+  const completedTasks = filteredTasks.filter((task) => task.completed)
 
   // Calculate actual overdue tasks
   const overdueTasks = tasks.filter(task => {
@@ -450,7 +439,7 @@ export default function TasksPage() {
       {/* Conditional Rendering: Calendar View or List View */}
       {currentViewMode === "calendar" ? (
         <CalendarAgendaView
-          tasks={tasks}
+          tasks={filteredTasks}
           onCreateTask={() => alert("Open New Task Modal")}
           currentDate={currentDate}
           viewMode={viewMode}
