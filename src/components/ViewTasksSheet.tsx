@@ -12,6 +12,8 @@ interface ViewTasksSheetProps {
   onOpenDateSort: () => void
   onOpenStatusFilter: () => void
   onOpenLabelFilter: () => void
+  onOpenCreatorFilter: () => void
+  onOpenAssigneeFilter: () => void
 }
 
 export default function ViewTasksSheet({
@@ -24,6 +26,8 @@ export default function ViewTasksSheet({
   onOpenDateSort,
   onOpenStatusFilter,
   onOpenLabelFilter,
+  onOpenCreatorFilter,
+  onOpenAssigneeFilter,
 }: ViewTasksSheetProps) {
   if (!isVisible) return null
 
@@ -42,6 +46,10 @@ export default function ViewTasksSheet({
       onOpenStatusFilter()
     } else if (label === "Label") {
       onOpenLabelFilter()
+    } else if (label === "Creator") {
+      onOpenCreatorFilter()
+    } else if (label === "Teammate") {
+      onOpenAssigneeFilter()
     } else {
       onSelectSortCategory(label)
       onClose()

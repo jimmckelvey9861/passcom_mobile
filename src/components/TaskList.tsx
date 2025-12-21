@@ -12,6 +12,7 @@ import ViewTasksSheet from "@/components/ViewTasksSheet"
 import SortDateSheet from "@/components/SortDateSheet"
 import SortStatusSheet from "@/components/SortStatusSheet"
 import SortLabelSheet from "@/components/SortLabelSheet"
+import SortUserSheet from "@/components/SortUserSheet"
 
 export default function TasksPage() {
   const router = useRouter()
@@ -25,6 +26,19 @@ export default function TasksPage() {
     { id: "personal", name: "Personal", color: "#6B7280" },
     { id: "bugs", name: "Bugs", color: "#F97316" },
   ]
+
+  // Dummy user data for testing
+  const currentUserId = "me"
+  const allUsers = [
+    { id: "me", name: "Me", initials: "JM", avatarUrl: null, color: "bg-blue-100" },
+    { id: "unassigned", name: "Unassigned", initials: "?", avatarUrl: null, color: "bg-gray-100" },
+    { id: "sarah", name: "Sarah Connors", initials: "SC", avatarUrl: null, color: "bg-purple-100" },
+    { id: "john", name: "John Smith", initials: "JS", avatarUrl: null, color: "bg-green-100" },
+    { id: "kyle", name: "Kyle Reese", initials: "KR", avatarUrl: null, color: "bg-orange-100" },
+  ]
+
+  // For "Created By" filter, exclude "Unassigned" since tasks always have a creator
+  const creatorUsers = allUsers.filter((user) => user.id !== "unassigned")
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [isOpenTasksExpanded, setIsOpenTasksExpanded] = useState(true)
@@ -45,6 +59,10 @@ export default function TasksPage() {
   const [statusFilters, setStatusFilters] = useState<string[]>([])
   const [isLabelSheetVisible, setIsLabelSheetVisible] = useState(false)
   const [labelFilters, setLabelFilters] = useState<string[]>([])
+  const [isCreatorSheetVisible, setIsCreatorSheetVisible] = useState(false)
+  const [creatorFilters, setCreatorFilters] = useState<string[]>([])
+  const [isAssigneeSheetVisible, setIsAssigneeSheetVisible] = useState(false)
+  const [assigneeFilters, setAssigneeFilters] = useState<string[]>([])
 
   const [tasks, setTasks] = useState([
     {
@@ -201,11 +219,25 @@ export default function TasksPage() {
     setIsLabelSheetVisible(true)
   }
 
+  // Handler to open Creator Filter sheet from View Tasks sheet
+  const handleOpenCreatorFilter = () => {
+    setIsViewTasksSheetVisible(false)
+    setIsCreatorSheetVisible(true)
+  }
+
+  // Handler to open Assignee Filter sheet from View Tasks sheet
+  const handleOpenAssigneeFilter = () => {
+    setIsViewTasksSheetVisible(false)
+    setIsAssigneeSheetVisible(true)
+  }
+
   // Handler to go back from sub-sheets to View Tasks sheet
   const handleBackToViewTasks = () => {
     setIsDateSortSheetVisible(false)
     setIsStatusSheetVisible(false)
     setIsLabelSheetVisible(false)
+    setIsCreatorSheetVisible(false)
+    setIsAssigneeSheetVisible(false)
     setIsViewTasksSheetVisible(true)
   }
 
@@ -215,6 +247,8 @@ export default function TasksPage() {
     setIsDateSortSheetVisible(false)
     setIsStatusSheetVisible(false)
     setIsLabelSheetVisible(false)
+    setIsCreatorSheetVisible(false)
+    setIsAssigneeSheetVisible(false)
   }
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -483,6 +517,8 @@ export default function TasksPage() {
         onOpenDateSort={handleOpenDateSort}
         onOpenStatusFilter={handleOpenStatusFilter}
         onOpenLabelFilter={handleOpenLabelFilter}
+        onOpenCreatorFilter={handleOpenCreatorFilter}
+        onOpenAssigneeFilter={handleOpenAssigneeFilter}
       />
 
       {/* Sort by Date Bottom Sheet */}
@@ -513,6 +549,30 @@ export default function TasksPage() {
         availableLabels={availableLabels}
         activeLabelIds={labelFilters}
         onApplyFilters={setLabelFilters}
+      />
+
+      {/* Sort by Creator Bottom Sheet */}
+      <SortUserSheet
+        isVisible={isCreatorSheetVisible}
+        onClose={handleCloseAllSheets}
+        onBack={handleBackToViewTasks}
+        title="Filter by Creator"
+        users={creatorUsers}
+        activeUserIds={creatorFilters}
+        onApplyFilters={setCreatorFilters}
+        currentUserId={currentUserId}
+      />
+
+      {/* Sort by Assignee Bottom Sheet */}
+      <SortUserSheet
+        isVisible={isAssigneeSheetVisible}
+        onClose={handleCloseAllSheets}
+        onBack={handleBackToViewTasks}
+        title="Filter by Assignee"
+        users={allUsers}
+        activeUserIds={assigneeFilters}
+        onApplyFilters={setAssigneeFilters}
+        currentUserId={currentUserId}
       />
     </div>
   )
