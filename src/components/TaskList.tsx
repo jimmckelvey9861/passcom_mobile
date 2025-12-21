@@ -13,6 +13,7 @@ import SortDateSheet from "@/components/SortDateSheet"
 import SortStatusSheet from "@/components/SortStatusSheet"
 import SortLabelSheet from "@/components/SortLabelSheet"
 import SortUserSheet from "@/components/SortUserSheet"
+import CalendarAgendaView from "@/components/CalendarAgendaView"
 
 export default function TasksPage() {
   const router = useRouter()
@@ -71,6 +72,7 @@ export default function TasksPage() {
       subtitle: "Starts Dec 16 4:33 PM - Due Dec 16 5:33 PM",
       priority: "Draft",
       completed: false,
+      dueDate: new Date(2024, 11, 16), // Dec 16, 2024
     },
     {
       id: 2,
@@ -78,24 +80,28 @@ export default function TasksPage() {
       subtitle: "Starts Dec 17 9:00 AM - Due Dec 17 11:00 AM",
       priority: "High",
       completed: false,
+      dueDate: new Date(2024, 11, 17), // Dec 17, 2024
     },
     {
       id: 3,
       title: "Wash Hands",
       subtitle: "Starts Dec 16 4:34 PM - Due Dec 16 5:34 PM",
       completed: true,
+      dueDate: new Date(2024, 11, 16), // Dec 16, 2024
     },
     {
       id: 4,
       title: "Review Code Changes",
       subtitle: "Starts Dec 18 2:00 PM - Due Dec 18 4:00 PM",
       completed: true,
+      dueDate: new Date(2024, 11, 18), // Dec 18, 2024
     },
     {
       id: 5,
       title: "Team Standup Meeting",
       subtitle: "Starts Dec 19 10:00 AM - Due Dec 19 10:30 AM",
       completed: true,
+      dueDate: new Date(2024, 11, 19), // Dec 19, 2024
     },
   ])
 
@@ -406,8 +412,24 @@ export default function TasksPage() {
         </button>
       </div>
 
-      {/* Tasks Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+      {/* Conditional Rendering: Calendar View or List View */}
+      {currentViewMode === "calendar" ? (
+        <CalendarAgendaView
+          tasks={tasks}
+          onCreateTask={() => alert("Open New Task Modal")}
+          currentDate={currentDate}
+          viewMode={viewMode}
+          onPreviousRange={goToPreviousDay}
+          onNextRange={goToNextDay}
+          onDateSelect={(date) => {
+            setCurrentDate(date)
+            setCurrentViewMode("list")
+          }}
+        />
+      ) : (
+        <>
+          {/* Tasks Content */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
         {/* Open Tasks Section */}
         <div className="space-y-3">
           <button
@@ -488,15 +510,17 @@ export default function TasksPage() {
         </div>
       </div>
 
-      {/* Create Task Button */}
-      <div className="p-4 bg-white border-t">
-        <Button
-          onClick={() => alert("Open New Task Modal")}
-          className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-500 text-white text-base font-medium"
-        >
-          Create task
-        </Button>
-      </div>
+          {/* Create Task Button */}
+          <div className="p-4 bg-white border-t">
+            <Button
+              onClick={() => alert("Open New Task Modal")}
+              className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-500 text-white text-base font-medium"
+            >
+              Create task
+            </Button>
+          </div>
+        </>
+      )}
 
       {/* Sort Menu Bottom Sheet */}
       <SortMenuSheet
