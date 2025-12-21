@@ -11,9 +11,20 @@ import SortMenuSheet from "@/components/SortMenuSheet"
 import ViewTasksSheet from "@/components/ViewTasksSheet"
 import SortDateSheet from "@/components/SortDateSheet"
 import SortStatusSheet from "@/components/SortStatusSheet"
+import SortLabelSheet from "@/components/SortLabelSheet"
 
 export default function TasksPage() {
   const router = useRouter()
+
+  // Dummy label data for testing
+  const availableLabels = [
+    { id: "urgent", name: "Urgent", color: "#EF4444" },
+    { id: "design", name: "Design", color: "#3B82F6" },
+    { id: "marketing", name: "Marketing", color: "#A855F7" },
+    { id: "finance", name: "Finance", color: "#10B981" },
+    { id: "personal", name: "Personal", color: "#6B7280" },
+    { id: "bugs", name: "Bugs", color: "#F97316" },
+  ]
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [isOpenTasksExpanded, setIsOpenTasksExpanded] = useState(true)
@@ -32,6 +43,8 @@ export default function TasksPage() {
   const [selectedDateRange, setSelectedDateRange] = useState<{ start: Date; end: Date } | null>(null)
   const [isStatusSheetVisible, setIsStatusSheetVisible] = useState(false)
   const [statusFilters, setStatusFilters] = useState<string[]>([])
+  const [isLabelSheetVisible, setIsLabelSheetVisible] = useState(false)
+  const [labelFilters, setLabelFilters] = useState<string[]>([])
 
   const [tasks, setTasks] = useState([
     {
@@ -182,10 +195,17 @@ export default function TasksPage() {
     setIsStatusSheetVisible(true)
   }
 
-  // Handler to go back from Date Sort sheet to View Tasks sheet
+  // Handler to open Label Filter sheet from View Tasks sheet
+  const handleOpenLabelFilter = () => {
+    setIsViewTasksSheetVisible(false)
+    setIsLabelSheetVisible(true)
+  }
+
+  // Handler to go back from sub-sheets to View Tasks sheet
   const handleBackToViewTasks = () => {
     setIsDateSortSheetVisible(false)
     setIsStatusSheetVisible(false)
+    setIsLabelSheetVisible(false)
     setIsViewTasksSheetVisible(true)
   }
 
@@ -194,6 +214,7 @@ export default function TasksPage() {
     setIsViewTasksSheetVisible(false)
     setIsDateSortSheetVisible(false)
     setIsStatusSheetVisible(false)
+    setIsLabelSheetVisible(false)
   }
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -461,6 +482,7 @@ export default function TasksPage() {
         onSelectSortCategory={setSelectedSortCategory}
         onOpenDateSort={handleOpenDateSort}
         onOpenStatusFilter={handleOpenStatusFilter}
+        onOpenLabelFilter={handleOpenLabelFilter}
       />
 
       {/* Sort by Date Bottom Sheet */}
@@ -481,6 +503,16 @@ export default function TasksPage() {
         onBack={handleBackToViewTasks}
         activeFilters={statusFilters}
         onApplyFilters={setStatusFilters}
+      />
+
+      {/* Sort by Label Bottom Sheet */}
+      <SortLabelSheet
+        isVisible={isLabelSheetVisible}
+        onClose={handleCloseAllSheets}
+        onBack={handleBackToViewTasks}
+        availableLabels={availableLabels}
+        activeLabelIds={labelFilters}
+        onApplyFilters={setLabelFilters}
       />
     </div>
   )
