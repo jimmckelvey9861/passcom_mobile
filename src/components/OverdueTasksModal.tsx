@@ -10,10 +10,11 @@ interface Task {
   startTime?: string
   dueTime?: string
   status?: string
-  assignedTo?: string
-  createdBy?: string
+  assigneeId?: string
+  creatorId?: string
   labels?: string[]
   comments?: number
+  completed?: boolean
 }
 
 interface TaskGroup {
@@ -43,17 +44,17 @@ export default function OverdueTasksModal({
   const overdueTasks = useMemo(() => {
     const now = new Date()
     return tasks.filter(task => {
-      // Check if task is overdue and not done
+      // Check if task is overdue and not done (must match TaskList.tsx logic)
       const isDue = task.dueTime ? new Date(task.dueTime) < now : false
-      const isNotDone = task.status !== "done"
+      const isDone = task.status?.toLowerCase() === 'done' || task.completed === true
       
-      if (!isDue || !isNotDone) return false
+      if (!isDue || isDone) return false
 
       // Apply selected filter
       if (selectedFilter === "My tasks") {
-        return task.assignedTo === currentUserId
+        return task.assigneeId === currentUserId
       } else if (selectedFilter === "Tasks I created") {
-        return task.createdBy === currentUserId
+        return task.creatorId === currentUserId
       }
       // "All tasks"
       return true
@@ -218,11 +219,11 @@ export default function OverdueTasksModal({
                           )}
                           <div
                             className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
-                            style={{ backgroundColor: getAvatarColor(task.assignedTo || task.id) }}
+                            style={{ backgroundColor: getAvatarColor(task.assigneeId || task.id) }}
                           >
-                            {getInitials(task.assignedTo || "User")}
+                            {getInitials(task.assigneeId || "User")}
                           </div>
-                          <span className="text-sm text-gray-700">{task.assignedTo || "Unassigned"}</span>
+                          <span className="text-sm text-gray-700">{task.assigneeId || "Unassigned"}</span>
                         </div>
                         {/* Right: Comments */}
                         <div className="flex items-center gap-1 text-gray-500">
