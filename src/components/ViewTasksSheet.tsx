@@ -35,8 +35,8 @@ export default function ViewTasksSheet({
     { id: 1, label: "Date" },
     { id: 2, label: "Status" },
     { id: 3, label: "Label" },
-    { id: 4, label: "Creator" },
-    { id: 5, label: "Teammate" },
+    { id: 4, label: "Created by" },
+    { id: 5, label: "Assigned to" },
   ]
 
   const handleSortItemClick = (label: string) => {
@@ -46,9 +46,9 @@ export default function ViewTasksSheet({
       onOpenStatusFilter()
     } else if (label === "Label") {
       onOpenLabelFilter()
-    } else if (label === "Creator") {
+    } else if (label === "Created by") {
       onOpenCreatorFilter()
-    } else if (label === "Teammate") {
+    } else if (label === "Assigned to") {
       onOpenAssigneeFilter()
     } else {
       onSelectSortCategory(label)
