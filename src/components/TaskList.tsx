@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, ChevronDown, Settings, Search, SlidersHorizontal, Eye, Bell } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Search, SlidersHorizontal, Bell, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
+import SortMenuSheet from "@/components/SortMenuSheet"
+import ViewTasksSheet from "@/components/ViewTasksSheet"
 
 export default function TasksPage() {
   const router = useRouter()
@@ -19,6 +21,10 @@ export default function TasksPage() {
   const [taskView, setTaskView] = useState<"my-tasks" | "tasks-i-made">("my-tasks")
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isSortSheetVisible, setIsSortSheetVisible] = useState(false)
+  const [selectedSortCategory, setSelectedSortCategory] = useState("Date")
+  const [isViewTasksSheetVisible, setIsViewTasksSheetVisible] = useState(false)
+  const [currentViewMode, setCurrentViewMode] = useState<"list" | "calendar">("list")
 
   const [tasks, setTasks] = useState([
     {
@@ -65,6 +71,10 @@ export default function TasksPage() {
 
   const openTasks = tasks.filter((task) => !task.completed)
   const completedTasks = tasks.filter((task) => task.completed)
+
+  // Check for overdue tasks (for demo: any open tasks count as "overdue")
+  // In production, this would check actual due dates against current date
+  const hasOverdueTasks = openTasks.length > 0
 
   // Date navigation functions
   const goToPreviousDay = () => {
@@ -195,8 +205,11 @@ export default function TasksPage() {
               >
                 <Search size={24} />
               </button>
-              <button className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center">
-                <Settings size={24} />
+              <button className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 relative flex items-center justify-center">
+                <AlertTriangle size={24} />
+                {hasOverdueTasks && (
+                  <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+                )}
               </button>
             </div>
           </>
@@ -232,7 +245,10 @@ export default function TasksPage() {
       {/* Lower Control Bar - Date Range Selector */}
       <div className="bg-white px-4 py-4 flex items-center gap-2 border-b">
         {/* Filter icon - moved from upper bar */}
-        <button className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center shrink-0">
+        <button 
+          onClick={() => setIsSortSheetVisible(true)}
+          className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center shrink-0"
+        >
           <SlidersHorizontal size={24} />
         </button>
 
@@ -288,10 +304,17 @@ export default function TasksPage() {
         {/* Bell icon - moved from upper bar */}
         <button 
           onClick={() => router.push('/notifications')}
-          className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 relative flex items-center justify-center"
+          className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center"
         >
           <Bell size={24} />
-          <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+        </button>
+
+        {/* Eye icon - View Tasks */}
+        <button 
+          onClick={() => setIsViewTasksSheetVisible(true)}
+          className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center"
+        >
+          <Eye size={24} />
         </button>
       </div>
 
@@ -386,6 +409,24 @@ export default function TasksPage() {
           Create task
         </Button>
       </div>
+
+      {/* Sort Menu Bottom Sheet */}
+      <SortMenuSheet
+        isVisible={isSortSheetVisible}
+        onClose={() => setIsSortSheetVisible(false)}
+        activeCategory={selectedSortCategory}
+        onSelectCategory={setSelectedSortCategory}
+      />
+
+      {/* View Tasks Bottom Sheet */}
+      <ViewTasksSheet
+        isVisible={isViewTasksSheetVisible}
+        onClose={() => setIsViewTasksSheetVisible(false)}
+        currentViewMode={currentViewMode}
+        onChangeViewMode={setCurrentViewMode}
+        activeSortCategory={selectedSortCategory}
+        onSelectSortCategory={setSelectedSortCategory}
+      />
     </div>
   )
 }
