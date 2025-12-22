@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { ChevronRight, ChevronDown } from "lucide-react"
+import TaskCard from "@/components/TaskCard"
 
 interface Task {
   id: number
@@ -206,54 +206,19 @@ export default function CalendarAgendaView({
 
               {/* Expanded Task Cards */}
               {isExpanded && (
-                <div className="pb-4 space-y-3">
+                <div className="pb-4">
                   {dayTasks.length === 0 ? (
                     <div className="text-center py-6 text-gray-400">
                       No tasks for this day
                     </div>
                   ) : (
                     dayTasks.map((task) => (
-                      <div
+                      <TaskCard
                         key={task.id}
-                        className={`bg-white rounded-lg p-4 shadow-sm border border-gray-200 min-h-[68px] flex items-center justify-between ${
-                          task.completed ? "bg-green-50" : ""
-                        }`}
-                      >
-                        <div className="flex-1">
-                          <h3
-                            className={`font-semibold text-base mb-1 ${
-                              task.completed ? "line-through text-gray-400" : ""
-                            }`}
-                          >
-                            {task.title}
-                          </h3>
-                          <p className={`text-sm ${task.completed ? "text-gray-400" : "text-gray-600"}`}>
-                            {task.subtitle}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {task.priority && (
-                            <Badge
-                              variant="secondary"
-                              className="bg-orange-100 text-orange-600 hover:bg-orange-100 px-3 py-1"
-                            >
-                              {task.priority}
-                            </Badge>
-                          )}
-                          {task.completed && (
-                            <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
-                              <svg className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          )}
-                          {!task.completed && <ChevronRight className="h-5 w-5 text-gray-400" />}
-                        </div>
-                      </div>
+                        task={task}
+                        onPress={() => alert(`Open task details for: ${task.title}`)}
+                        onToggleStatus={() => alert("Toggle not available in calendar view")}
+                      />
                     ))
                   )}
                 </div>

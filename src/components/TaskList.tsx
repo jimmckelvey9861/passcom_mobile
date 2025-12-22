@@ -14,6 +14,7 @@ import SortTagSheet from "@/components/SortTagSheet"
 import SortUserSheet from "@/components/SortUserSheet"
 import CalendarAgendaView from "@/components/CalendarAgendaView"
 import OverdueTasksModal from "@/components/OverdueTasksModal"
+import TaskCard from "@/components/TaskCard"
 import { DUMMY_TASKS, DUMMY_USERS, DUMMY_TAGS, CURRENT_USER_ID } from "@/data/dummyTasks"
 
 export default function TasksPage() {
@@ -563,28 +564,12 @@ export default function TasksPage() {
           </button>
 
           {isOpenTasksExpanded && openTasks.map((task) => (
-            <div
+            <TaskCard
               key={task.id}
-              className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 min-h-[68px] flex items-center justify-between cursor-pointer"
-              onClick={() => toggleTask(task.id)}
-            >
-              <div className="flex-1">
-                <h3 className={`font-semibold text-base mb-1 ${task.completed ? "line-through text-gray-400" : ""}`}>
-                  {task.title}
-                </h3>
-                <p className={`text-sm ${task.completed ? "text-gray-400" : "text-red-400"}`}>
-                  {task.subtitle}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                {task.priority && (
-                  <Badge variant="secondary" className="bg-orange-100 text-orange-600 hover:bg-orange-100 px-3 py-1">
-                    {task.priority}
-                  </Badge>
-                )}
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </div>
-            </div>
+              task={task}
+              onPress={() => alert(`Open task details for: ${task.title}`)}
+              onToggleStatus={toggleTask}
+            />
           ))}
         </div>
 
@@ -603,27 +588,12 @@ export default function TasksPage() {
           </button>
 
           {isDoneTasksExpanded && completedTasks.map((task) => (
-            <div
+            <TaskCard
               key={task.id}
-              className="bg-green-50 rounded-lg p-4 shadow-sm border border-gray-200 min-h-[68px] flex items-center justify-between cursor-pointer"
-              onClick={() => toggleTask(task.id)}
-            >
-              <div className="flex-1">
-                <h3 className="font-semibold text-base mb-1 line-through text-gray-400">
-                  {task.title}
-                </h3>
-                <p className="text-sm text-gray-400">{task.subtitle}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
-                <svg className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
+              task={task}
+              onPress={() => alert(`Open task details for: ${task.title}`)}
+              onToggleStatus={toggleTask}
+            />
           ))}
         </div>
       </div>
