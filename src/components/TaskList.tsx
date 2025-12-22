@@ -42,7 +42,7 @@ export default function TasksPage() {
   const [isOpenTasksExpanded, setIsOpenTasksExpanded] = useState(true)
   const [isDoneTasksExpanded, setIsDoneTasksExpanded] = useState(true)
   const [isDateOpen, setIsDateOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<"Day" | "Week" | "Month">("Day")
+  const [viewMode, setViewMode] = useState<"Day" | "Week" | "Month">("Week")
   const [taskView, setTaskView] = useState<"my-tasks" | "tasks-i-made">("my-tasks")
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
