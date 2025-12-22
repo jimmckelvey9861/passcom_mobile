@@ -15,6 +15,7 @@ import SortUserSheet from "@/components/SortUserSheet"
 import CalendarAgendaView from "@/components/CalendarAgendaView"
 import OverdueTasksModal from "@/components/OverdueTasksModal"
 import { TaskCard } from "@/components/TaskCard"
+import { TaskEditor } from "@/components/TaskEditor"
 import { DUMMY_TASKS, DUMMY_USERS, DUMMY_TAGS, CURRENT_USER_ID } from "@/data/dummyTasks"
 
 // Helper function to format date
@@ -60,6 +61,8 @@ export default function TasksPage() {
   const [isAssigneeSheetVisible, setIsAssigneeSheetVisible] = useState(false)
   const [assigneeFilters, setAssigneeFilters] = useState<string[]>([])
   const [isOverdueModalVisible, setIsOverdueModalVisible] = useState(false)
+  const [isEditorOpen, setIsEditorOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<any>(null)
 
   // Use imported dummy tasks
   const [tasks, setTasks] = useState(DUMMY_TASKS)
@@ -408,6 +411,20 @@ export default function TasksPage() {
     setIsCreatorSheetVisible(false)
     setIsAssigneeSheetVisible(false)
   }
+
+  // Handle saving task (create or update)
+  const handleSaveTask = (task: any) => {
+    if (editingTask) {
+      // Update existing task
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (t.id === task.id ? { ...t, ...task } : t))
+      )
+    } else {
+      // Add new task
+      setTasks((prevTasks) => [...prevTasks, task])
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Upper Control Bar - Task View Toggle / Search */}
@@ -629,7 +646,10 @@ export default function TasksPage() {
                   startDate={formatTaskDate(task.startTime)}
                   dueDate={formatTaskDate(task.dueTime)}
                   status={task.status}
-                  onClick={() => alert(`Open task details for: ${task.title}`)}
+                  onClick={() => {
+                    setEditingTask(task)
+                    setIsEditorOpen(true)
+                  }}
                 />
               ))
             )
@@ -657,7 +677,10 @@ export default function TasksPage() {
               startDate={formatTaskDate(task.startTime)}
               dueDate={formatTaskDate(task.dueTime)}
               status={task.status}
-              onClick={() => alert(`Open task details for: ${task.title}`)}
+              onClick={() => {
+                setEditingTask(task)
+                setIsEditorOpen(true)
+              }}
             />
           ))}
         </div>
@@ -666,7 +689,10 @@ export default function TasksPage() {
           {/* Create Task Button */}
           <div className="p-4 bg-white border-t">
             <Button
-              onClick={() => alert("Open New Task Modal")}
+              onClick={() => {
+                setEditingTask(null)
+                setIsEditorOpen(true)
+              }}
               className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-500 text-white text-base font-medium"
             >
               Create task
@@ -755,6 +781,14 @@ export default function TasksPage() {
         tasks={tasks}
         onMarkDone={toggleTask}
         currentUserId={currentUserId}
+      />
+
+      {/* Task Editor Modal */}
+      <TaskEditor
+        isVisible={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        onSave={handleSaveTask}
+        initialTask={editingTask}
       />
     </div>
   )
