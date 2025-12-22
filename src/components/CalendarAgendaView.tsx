@@ -42,8 +42,8 @@ export default function CalendarAgendaView({
   onPreviousRange,
   onNextRange,
 }: CalendarAgendaViewProps) {
-  // State for accordion - track which date is expanded
-  const [expandedDate, setExpandedDate] = useState<string | null>(null)
+  // State for accordion - track which dates are expanded (allow multiple)
+  const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set())
   // Generate days based on view mode
   const generateDays = (): Date[] => {
     const days: Date[] = []
@@ -151,7 +151,15 @@ export default function CalendarAgendaView({
   // Toggle accordion
   const toggleDate = (date: Date) => {
     const dateKey = getDateKey(date)
-    setExpandedDate(expandedDate === dateKey ? null : dateKey)
+    setExpandedDates((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(dateKey)) {
+        newSet.delete(dateKey)
+      } else {
+        newSet.add(dateKey)
+      }
+      return newSet
+    })
   }
 
   return (
@@ -164,7 +172,7 @@ export default function CalendarAgendaView({
           const doneCount = dayTasks.filter((t) => t.completed).length
           const totalCount = dayTasks.length
           const dateKey = getDateKey(day)
-          const isExpanded = expandedDate === dateKey
+          const isExpanded = expandedDates.has(dateKey)
 
           return (
             <div key={index} className="border-b border-gray-100 last:border-0">
