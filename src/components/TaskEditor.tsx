@@ -264,23 +264,23 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
           <div className="flex items-center gap-2 relative">
             {startDateTime ? (
               <>
-                <span className="text-blue-500 text-base cursor-pointer" onClick={() => document.getElementById('start-time-input')?.click()}>
+                <label htmlFor="start-time-input" className="text-blue-500 text-base cursor-pointer">
                   {formatDateTime(startDateTime)}
-                </span>
+                </label>
                 <button 
                   className="text-gray-400 hover:text-gray-600"
-                  onClick={() => setStartDateTime("")}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setStartDateTime("")
+                  }}
                 >
                   <X className="h-5 w-5" />
                 </button>
               </>
             ) : (
-              <span 
-                className="text-blue-500 text-base cursor-pointer"
-                onClick={() => document.getElementById('start-time-input')?.click()}
-              >
+              <label htmlFor="start-time-input" className="text-blue-500 text-base cursor-pointer">
                 Select
-              </span>
+              </label>
             )}
             <input
               id="start-time-input"
@@ -288,7 +288,7 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
               value={startDateTime}
               min={getCurrentDateTime()}
               onChange={(e) => setStartDateTime(e.target.value)}
-              className="absolute opacity-0 pointer-events-none"
+              className="absolute right-0 opacity-0 w-full h-full cursor-pointer"
             />
           </div>
         </div>
@@ -299,23 +299,23 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
           <div className="flex items-center gap-2 relative">
             {dueDateTime ? (
               <>
-                <span className="text-blue-500 text-base cursor-pointer" onClick={() => document.getElementById('due-time-input')?.click()}>
+                <label htmlFor="due-time-input" className="text-blue-500 text-base cursor-pointer">
                   {formatDateTime(dueDateTime)}
-                </span>
+                </label>
                 <button 
                   className="text-gray-400 hover:text-gray-600"
-                  onClick={() => setDueDateTime("")}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setDueDateTime("")
+                  }}
                 >
                   <X className="h-5 w-5" />
                 </button>
               </>
             ) : (
-              <span 
-                className="text-blue-500 text-base cursor-pointer"
-                onClick={() => document.getElementById('due-time-input')?.click()}
-              >
+              <label htmlFor="due-time-input" className="text-blue-500 text-base cursor-pointer">
                 Select
-              </span>
+              </label>
             )}
             <input
               id="due-time-input"
@@ -323,7 +323,7 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
               value={dueDateTime}
               min={startDateTime || getCurrentDateTime()}
               onChange={(e) => setDueDateTime(e.target.value)}
-              className="absolute opacity-0 pointer-events-none"
+              className="absolute right-0 opacity-0 w-full h-full cursor-pointer"
             />
           </div>
         </div>
