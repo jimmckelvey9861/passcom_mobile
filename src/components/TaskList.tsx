@@ -72,6 +72,25 @@ export default function TasksPage() {
     )
   }
 
+  // Check if any filters are active
+  const hasActiveFilters = 
+    searchQuery.trim() !== "" ||
+    statusFilters.length > 0 ||
+    tagFilters.length > 0 ||
+    creatorFilters.length > 0 ||
+    assigneeFilters.length > 0 ||
+    selectedDateRange !== null
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery("")
+    setStatusFilters([])
+    setTagFilters([])
+    setCreatorFilters([])
+    setAssigneeFilters([])
+    setSelectedDateRange(null)
+  }
+
   // Apply filters and sorting
   const filteredTasks = useMemo(() => {
     let result = [...tasks]
@@ -475,11 +494,14 @@ export default function TasksPage() {
       {/* Lower Control Bar - Date Range Selector */}
       <div className="bg-white px-4 py-4 flex items-center gap-2 border-b">
         {/* View Tasks icon */}
-        <button 
+        <button
           onClick={() => setIsViewTasksSheetVisible(true)}
-          className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center shrink-0"
+          className="h-auto p-3 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center shrink-0 relative"
         >
           <SlidersHorizontal size={24} />
+          {hasActiveFilters && (
+            <span className="absolute top-2 right-2 h-2.5 w-2.5 bg-blue-500 rounded-full" />
+          )}
         </button>
 
         {/* Date Range Selector with Popover */}
@@ -560,28 +582,58 @@ export default function TasksPage() {
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
         {/* Open Tasks Section */}
         <div className="space-y-3">
-          <button
-            onClick={() => setIsOpenTasksExpanded(!isOpenTasksExpanded)}
-            className="flex items-center gap-2 text-blue-500 font-semibold text-lg w-full"
-          >
-            <span>Open tasks ({openTasks.length})</span>
-            <ChevronDown
-              className={`h-5 w-5 transition-transform duration-200 ${
-                isOpenTasksExpanded ? "" : "-rotate-90"
-              }`}
-            />
-          </button>
+          <div className="flex items-center justify-between w-full">
+            <button
+              onClick={() => setIsOpenTasksExpanded(!isOpenTasksExpanded)}
+              className="flex items-center gap-2 text-blue-500 font-semibold text-lg"
+            >
+              <span>Open tasks ({openTasks.length})</span>
+              <ChevronDown
+                className={`h-5 w-5 transition-transform duration-200 ${
+                  isOpenTasksExpanded ? "" : "-rotate-90"
+                }`}
+              />
+            </button>
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                className="text-blue-500 text-sm font-medium hover:text-blue-600"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
 
-          {isOpenTasksExpanded && openTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              title={task.title}
-              startDate={formatTaskDate(task.startTime)}
-              dueDate={formatTaskDate(task.dueTime)}
-              status={task.status}
-              onClick={() => alert(`Open task details for: ${task.title}`)}
-            />
-          ))}
+          {isOpenTasksExpanded && (
+            openTasks.length === 0 ? (
+              <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
+                {hasActiveFilters ? (
+                  <>
+                    <p className="text-gray-500 mb-4">No tasks match your filters.</p>
+                    <button
+                      onClick={clearAllFilters}
+                      className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+                    >
+                      Clear All Filters
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-gray-500">You are all caught up! 🎉</p>
+                )}
+              </div>
+            ) : (
+              openTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  title={task.title}
+                  startDate={formatTaskDate(task.startTime)}
+                  dueDate={formatTaskDate(task.dueTime)}
+                  status={task.status}
+                  onClick={() => alert(`Open task details for: ${task.title}`)}
+                />
+              ))
+            )
+          )}
         </div>
 
         {/* Done Tasks Section */}
