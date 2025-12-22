@@ -1,6 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { ChevronRight, ChevronDown } from "lucide-react"
 
 interface Task {
   id: number
@@ -30,6 +33,8 @@ export default function CalendarAgendaView({
   onPreviousRange,
   onNextRange,
 }: CalendarAgendaViewProps) {
+  // State for accordion - track which date is expanded
+  const [expandedDate, setExpandedDate] = useState<string | null>(null)
   // Generate days based on view mode
   const generateDays = (): Date[] => {
     const days: Date[] = []
@@ -129,6 +134,17 @@ export default function CalendarAgendaView({
 
   const agendaDays = generateDays()
 
+  // Helper to get date key for comparison
+  const getDateKey = (date: Date): string => {
+    return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+  }
+
+  // Toggle accordion
+  const toggleDate = (date: Date) => {
+    const dateKey = getDateKey(date)
+    setExpandedDate(expandedDate === dateKey ? null : dateKey)
+  }
+
   return (
     <div className="flex flex-col h-full bg-gray-50 relative">
       {/* Agenda List */}
@@ -138,44 +154,111 @@ export default function CalendarAgendaView({
           const openCount = dayTasks.filter((t) => !t.completed).length
           const doneCount = dayTasks.filter((t) => t.completed).length
           const totalCount = dayTasks.length
+          const dateKey = getDateKey(day)
+          const isExpanded = expandedDate === dateKey
 
           return (
-            <button
-              key={index}
-              onClick={() => onDateSelect?.(day)}
-              className="w-full flex items-center justify-between py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
-            >
-              {/* Left: Date */}
-              <div className="text-base text-left">
-                <span className={isToday(day) || isYesterday(day) ? "font-normal" : ""}>{formatDate(day)}</span>
-                {isYesterday(day) && <span className="font-bold"> - Yesterday</span>}
-                {isToday(day) && <span className="font-bold"> - Today</span>}
-              </div>
+            <div key={index} className="border-b border-gray-100 last:border-0">
+              {/* Date Header Row */}
+              <button
+                onClick={() => toggleDate(day)}
+                className="w-full flex items-center justify-between py-4 hover:bg-gray-50 transition-colors"
+              >
+                {/* Left: Date */}
+                <div className="text-base text-left flex items-center gap-2">
+                  {/* Chevron Icon */}
+                  {isExpanded ? (
+                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                  )}
+                  <span className={isToday(day) || isYesterday(day) ? "font-normal" : ""}>{formatDate(day)}</span>
+                  {isYesterday(day) && <span className="font-bold"> - Yesterday</span>}
+                  {isToday(day) && <span className="font-bold"> - Today</span>}
+                </div>
 
-              {/* Right: Task Summary */}
-              <div className="flex items-center gap-2">
-                {totalCount === 0 ? (
-                  <span className="text-gray-400 text-sm">No tasks</span>
-                ) : (
-                  <>
-                    {openCount > 0 && (
-                      <div className="px-3 py-1 bg-blue-100 rounded-full">
-                        <span className="text-blue-700 text-sm font-medium">
-                          {openCount} open
-                        </span>
-                      </div>
+                {/* Right: Task Summary (only show when collapsed) */}
+                {!isExpanded && (
+                  <div className="flex items-center gap-2">
+                    {totalCount === 0 ? (
+                      <span className="text-gray-400 text-sm">No tasks</span>
+                    ) : (
+                      <>
+                        {openCount > 0 && (
+                          <div className="px-3 py-1 bg-blue-100 rounded-full">
+                            <span className="text-blue-700 text-sm font-medium">
+                              {openCount} open
+                            </span>
+                          </div>
+                        )}
+                        {doneCount > 0 && (
+                          <div className="px-3 py-1 bg-green-100 rounded-full">
+                            <span className="text-green-700 text-sm font-medium">
+                              {doneCount} done
+                            </span>
+                          </div>
+                        )}
+                      </>
                     )}
-                    {doneCount > 0 && (
-                      <div className="px-3 py-1 bg-green-100 rounded-full">
-                        <span className="text-green-700 text-sm font-medium">
-                          {doneCount} done
-                        </span>
-                      </div>
-                    )}
-                  </>
+                  </div>
                 )}
-              </div>
-            </button>
+              </button>
+
+              {/* Expanded Task Cards */}
+              {isExpanded && (
+                <div className="pb-4 space-y-3">
+                  {dayTasks.length === 0 ? (
+                    <div className="text-center py-6 text-gray-400">
+                      No tasks for this day
+                    </div>
+                  ) : (
+                    dayTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className={`bg-white rounded-lg p-4 shadow-sm border border-gray-200 min-h-[68px] flex items-center justify-between ${
+                          task.completed ? "bg-green-50" : ""
+                        }`}
+                      >
+                        <div className="flex-1">
+                          <h3
+                            className={`font-semibold text-base mb-1 ${
+                              task.completed ? "line-through text-gray-400" : ""
+                            }`}
+                          >
+                            {task.title}
+                          </h3>
+                          <p className={`text-sm ${task.completed ? "text-gray-400" : "text-gray-600"}`}>
+                            {task.subtitle}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {task.priority && (
+                            <Badge
+                              variant="secondary"
+                              className="bg-orange-100 text-orange-600 hover:bg-orange-100 px-3 py-1"
+                            >
+                              {task.priority}
+                            </Badge>
+                          )}
+                          {task.completed && (
+                            <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
+                              <svg className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          )}
+                          {!task.completed && <ChevronRight className="h-5 w-5 text-gray-400" />}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           )
         })}
       </div>
