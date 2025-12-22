@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, ChevronDown } from "lucide-react"
-import TaskCard from "@/components/TaskCard"
+import { TaskCard } from "@/components/TaskCard"
 
 // Helper function to format date
 function formatTaskDate(dateString: string | Date): string {

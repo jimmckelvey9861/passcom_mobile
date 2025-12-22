@@ -14,7 +14,7 @@ import SortTagSheet from "@/components/SortTagSheet"
 import SortUserSheet from "@/components/SortUserSheet"
 import CalendarAgendaView from "@/components/CalendarAgendaView"
 import OverdueTasksModal from "@/components/OverdueTasksModal"
-import TaskCard from "@/components/TaskCard"
+import { TaskCard } from "@/components/TaskCard"
 import { DUMMY_TASKS, DUMMY_USERS, DUMMY_TAGS, CURRENT_USER_ID } from "@/data/dummyTasks"
 
 // Helper function to format date
