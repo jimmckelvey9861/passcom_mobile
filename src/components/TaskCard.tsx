@@ -4,25 +4,42 @@ import { ChevronRight } from "lucide-react"
 
 interface TaskCardProps {
   title: string
-  startDate: string  // e.g. "Dec 16 9:55 AM"
-  dueDate: string    // e.g. "Dec 16 10:55 AM"
-  status: string     // "todo", "done", etc.
+  startDate: string
+  dueDate: string
+  status: 'late' | 'new' | 'todo' | 'done' | string // Allow string for flexibility
   onClick?: () => void
 }
 
 export function TaskCard({ title, startDate, dueDate, status, onClick }: TaskCardProps) {
+  
+  // Helper to determine background color based on status
+  const getCardStyle = (s: string) => {
+    switch (s.toLowerCase()) {
+      case 'late':
+        return 'bg-red-50 border-red-100 hover:bg-red-100'
+      case 'new':
+        return 'bg-green-50 border-green-100 hover:bg-green-100'
+      case 'todo': // covers "open" as well if needed
+      case 'open':
+        return 'bg-blue-50 border-blue-100 hover:bg-blue-100'
+      case 'done':
+        return 'bg-gray-100 border-gray-200 hover:bg-gray-200 opacity-80'
+      default:
+        return 'bg-white border-gray-100 hover:bg-gray-50'
+    }
+  }
+
+  const isDone = status.toLowerCase() === 'done';
+
   return (
     <div
       onClick={onClick}
-      className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+      className={`flex items-center gap-3 px-4 py-3 border-b cursor-pointer transition-colors ${getCardStyle(status)}`}
     >
-      {/* Left: Simple Status Indicator (Optional - simplistic dot just to anchor the row) */}
-      <div className={`w-3 h-3 rounded-full shrink-0 ${status === 'done' ? 'bg-green-500' : 'border border-gray-300'}`} />
-
       {/* Middle: 2-Line Content */}
       <div className="flex-1 min-w-0">
         {/* Line 1: Task Title */}
-        <h3 className="font-medium text-[16px] text-gray-900 truncate leading-tight">
+        <h3 className={`font-medium text-[16px] text-gray-900 truncate leading-tight ${isDone ? 'line-through text-gray-500' : ''}`}>
           {title}
         </h3>
 
