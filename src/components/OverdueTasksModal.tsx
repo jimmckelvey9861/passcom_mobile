@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronRight, Check, MessageSquare, X } from "lucide-react"
+import { ChevronDown, Check } from "lucide-react"
+import { TaskCard } from "@/components/TaskCard"
 
 interface Task {
   id: string
@@ -98,32 +99,16 @@ export default function OverdueTasksModal({
       })
   }, [overdueTasks])
 
-  const formatDateTime = (dateTimeString?: string) => {
-    if (!dateTimeString) return ""
-    const date = new Date(dateTimeString)
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true
-    })
+  // Helper function to format date for TaskCard
+  const formatTaskDate = (dateString?: string) => {
+    if (!dateString) return "N/A"
+    const date = new Date(dateString)
+    const month = date.toLocaleString('en-US', { month: 'short' })
+    const day = date.getDate()
+    const time = date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    return `${month} ${day} ${time}`
   }
 
-  const getInitials = (name: string) => {
-    const parts = name.split(" ")
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-    }
-    return name.substring(0, 2).toUpperCase()
-  }
-
-  const getAvatarColor = (id: string) => {
-    // Generate consistent color from ID
-    const colors = ["#FF9E7A", "#A78BFA", "#60A5FA", "#34D399", "#FBBF24", "#F87171"]
-    const index = parseInt(id.substring(0, 2), 36) % colors.length
-    return colors[index]
-  }
 
   if (!isVisible) return null
 
@@ -198,44 +183,18 @@ export default function OverdueTasksModal({
                 {/* Task Cards */}
                 <div className="space-y-3">
                   {group.tasks.map((task) => (
-                    <div key={task.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                      {/* Row 1: Task Title */}
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-base font-semibold text-gray-900">{task.title}</h3>
-                        <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                      </div>
-                      {/* Row 2: Urgency Time Range in RED */}
-                      <p className="text-sm font-medium mb-3" style={{ color: "#D32F2F" }}>
-                        Starts {formatDateTime(task.startTime)} - Due {formatDateTime(task.dueTime)}
-                      </p>
-                      {/* Row 3: Meta Information */}
-                      <div className="flex items-center justify-between mb-3">
-                        {/* Left: Tag (if exists) + Avatar + Name */}
-                        <div className="flex items-center gap-2">
-                          {task.tags && task.tags.length > 0 && (
-                            <span className="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-700">
-                              {task.tags[0]}
-                            </span>
-                          )}
-                          <div
-                            className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
-                            style={{ backgroundColor: getAvatarColor(task.assigneeId || task.id) }}
-                          >
-                            {getInitials(task.assigneeId || "User")}
-                          </div>
-                          <span className="text-sm text-gray-700">{task.assigneeId || "Unassigned"}</span>
-                        </div>
-                        {/* Right: Comments */}
-                        <div className="flex items-center gap-1 text-gray-500">
-                          <MessageSquare className="h-4 w-4" />
-                          <span className="text-sm">{task.comments || 0}</span>
-                        </div>
-                      </div>
-                      {/* Row 4: Mark as Done Button */}
+                    <div key={task.id} className="space-y-2">
+                      <TaskCard
+                        title={task.title}
+                        startDate={formatTaskDate(task.startTime)}
+                        dueDate={formatTaskDate(task.dueTime)}
+                        status="late"
+                        onClick={() => alert(`Open task details for: ${task.title}`)}
+                      />
                       <Button
                         variant="ghost"
                         onClick={() => onMarkDone(task.id)}
-                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium"
+                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium rounded-lg"
                       >
                         <Check className="h-4 w-4 mr-2" />
                         Mark as done
