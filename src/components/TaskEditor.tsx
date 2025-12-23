@@ -69,6 +69,19 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
   const [showLocationSelector, setShowLocationSelector] = useState(false)
   const [isAttachMenuOpen, setIsAttachMenuOpen] = useState(false)
 
+  // Helper: Get default start time (now)
+  const getDefaultStartTime = () => {
+    const now = new Date()
+    return now.toISOString().slice(0, 16)
+  }
+
+  // Helper: Get default due time (1 hour from start)
+  const getDefaultDueTime = (startTime?: string) => {
+    const start = startTime ? new Date(startTime) : new Date()
+    const due = new Date(start.getTime() + 60 * 60 * 1000) // Add 1 hour
+    return due.toISOString().slice(0, 16)
+  }
+
   // Get current datetime for min attribute
   const getCurrentDateTime = () => {
     const now = new Date()
@@ -105,7 +118,7 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         setDueDateTime(new Date(initialTask.dueTime).toISOString().slice(0, 16))
       }
     } else {
-      // Reset to defaults for create mode
+      // Reset to defaults for create mode with smart default times
       setTaskTitle("")
       setDescription("")
       setRequirePhoto(false)
@@ -113,8 +126,9 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
       setSelectedTags([])
       setSelectedLocation("")
       setChecklist([])
-      setStartDateTime("")
-      setDueDateTime("")
+      const defaultStart = getDefaultStartTime()
+      setStartDateTime(defaultStart)
+      setDueDateTime(getDefaultDueTime(defaultStart))
     }
   }, [initialTask, isVisible])
 
@@ -187,9 +201,9 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
     <div className="fixed inset-0 bg-white flex flex-col z-50">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b px-4 py-4 flex items-center gap-4 z-10">
-        <Button variant="ghost" size="icon" className="h-10 w-10 -ml-2" onClick={onClose}>
-          <ChevronLeft className="h-6 w-6" />
-        </Button>
+        <button onClick={onClose} className="h-auto p-3 shrink-0 flex items-center justify-center -ml-3">
+          <ChevronLeft className="h-6 w-6 text-gray-900" strokeWidth={2.5} />
+        </button>
         <h1 className="text-lg font-semibold flex-1 text-center mr-10">
           {initialTask ? "Edit task" : "Create new task"}
         </h1>
