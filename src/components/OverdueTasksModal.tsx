@@ -173,7 +173,7 @@ export default function OverdueTasksModal({
           {taskGroups.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-gray-500 text-base">No overdue tasks found</p>
-              <p className="text-gray-400 text-sm mt-2">You're all caught up!</p>
+              <p className="text-gray-400 text-sm mt-2">You&apos;re all caught up!</p>
             </div>
           ) : (
             taskGroups.map((group) => (

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { ChevronLeft, Paperclip, X, Check, Camera, FileText, Image } from "lucide-react"
+import { ChevronLeft, Paperclip, X, Check, Camera, FileText, Image, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { AVAILABLE_TAGS } from "@/data/tags"
 import TagSelectionSheet from "@/components/TagSelectionSheet"
+import { MediaCropEditor } from "@/components/MediaCropEditor"
 
 const AVAILABLE_LOCATIONS = [
   { id: "room101", name: "Room 101" },
@@ -46,10 +47,11 @@ interface TaskEditorProps {
   isVisible: boolean
   onClose: () => void
   onSave: (task: Task) => void
+  onDelete?: (taskId: string) => void
   initialTask?: Task | null
 }
 
-export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEditorProps) {
+export function TaskEditor({ isVisible, onClose, onSave, onDelete, initialTask }: TaskEditorProps) {
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const filesInputRef = useRef<HTMLInputElement>(null)
   const imagesInputRef = useRef<HTMLInputElement>(null)
@@ -63,6 +65,7 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
   const [isDueTimeExplicitlySet, setIsDueTimeExplicitlySet] = useState(false)
   const [requirePhoto, setRequirePhoto] = useState(false)
   const [attachments, setAttachments] = useState<File[]>([])
+  const [attachmentUrls, setAttachmentUrls] = useState<string[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedLocation, setSelectedLocation] = useState<string>("")
   const [checklist, setChecklist] = useState<ChecklistItem[]>([])
@@ -74,6 +77,8 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
   const [isClient, setIsClient] = useState(false)
   const [isStartDateOpen, setIsStartDateOpen] = useState(false)
   const [isDueDateOpen, setIsDueDateOpen] = useState(false)
+  const [mediaInEditor, setMediaInEditor] = useState<{ url: string; index: number } | null>(null)
+  const [videoInViewer, setVideoInViewer] = useState<string | null>(null)
 
   // Ensure we're on the client before using Date functions
   useEffect(() => {
@@ -93,15 +98,13 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
     return due.toISOString().slice(0, 16)
   }
 
-  // Get the effective due time to display (computed or explicit)
+  // Get the effective due time to display (only if explicitly set)
   const getEffectiveDueTime = () => {
     if (!isClient) return "" // Wait for client-side hydration
     if (isDueTimeExplicitlySet && dueDateTime) {
       return dueDateTime
     }
-    if (startDateTime) {
-      return getDefaultDueTime(startDateTime)
-    }
+    // Return empty string so "Select" is shown for new tasks
     return ""
   }
 
@@ -145,37 +148,54 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         setIsDueTimeExplicitlySet(true)
       }
     } else {
-      // Reset to defaults for create mode
+      // Reset to defaults for create mode (new task)
       setTaskTitle("")
       setDescription("")
       setRequirePhoto(false)
       setAttachments([])
+      setAttachmentUrls([])
       setSelectedTags([])
       setSelectedLocation("")
       setChecklist([])
-      setStartDateTime(getDefaultStartTime())
-      setDueDateTime("") // Don't set - will be computed
+      setStartDateTime(getDefaultStartTime()) // Set to current time
+      setDueDateTime("") // Leave empty - shows "Select"
       setIsDueTimeExplicitlySet(false)
     }
   }, [initialTask, isVisible, isClient])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setAttachments(prev => [...prev, ...Array.from(e.target.files!)])
+      const newFiles = Array.from(e.target.files)
+      setAttachments(prev => [...prev, ...newFiles])
+      
+      // Create URLs for preview
+      const newUrls = newFiles.map(file => URL.createObjectURL(file))
+      setAttachmentUrls(prev => [...prev, ...newUrls])
     }
     setIsAttachMenuOpen(false)
   }
 
   const handleRemoveAttachment = (index: number) => {
+    // Revoke the URL to free memory
+    if (attachmentUrls[index]) {
+      URL.revokeObjectURL(attachmentUrls[index])
+    }
     setAttachments(prev => prev.filter((_, i) => i !== index))
+    setAttachmentUrls(prev => prev.filter((_, i) => i !== index))
   }
 
-  const handleToggleTag = (tagId: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tagId) 
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    )
+  const handleCropComplete = (croppedImageUrl: string) => {
+    if (mediaInEditor) {
+      // Revoke old URL
+      URL.revokeObjectURL(attachmentUrls[mediaInEditor.index])
+      // Update with new cropped image URL
+      setAttachmentUrls(prev => {
+        const newUrls = [...prev]
+        newUrls[mediaInEditor.index] = croppedImageUrl
+        return newUrls
+      })
+      setMediaInEditor(null)
+    }
   }
 
   const handleAddChecklistItem = () => {
@@ -232,9 +252,15 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         <button onClick={onClose} className="h-auto p-3 shrink-0 flex items-center justify-center -ml-3">
           <ChevronLeft className="h-6 w-6 text-gray-900" strokeWidth={2.5} />
         </button>
-        <h1 className="text-lg font-semibold flex-1 text-center mr-10">
+        <h1 className="text-lg font-semibold flex-1 text-center">
           {initialTask ? "Edit task" : "Create new task"}
         </h1>
+        <button 
+          onClick={onClose}
+          className="h-auto p-3 shrink-0 flex items-center justify-center -mr-3"
+        >
+          <X className="h-6 w-6 text-gray-600" />
+        </button>
       </div>
 
       {/* Scrollable Content */}
@@ -258,17 +284,88 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
             className="min-h-[120px] resize-none border border-gray-200 rounded-lg px-3 py-2 text-lg placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-blue-500"
           />
           
-          {/* Attachments Display */}
-          {attachments.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {attachments.map((file, index) => (
-                <div key={index} className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">
-                  <span className="truncate max-w-[150px]">{file.name}</span>
-                  <button onClick={() => handleRemoveAttachment(index)}>
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
+          {/* Media Gallery */}
+          {attachmentUrls.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              {attachmentUrls.map((url, index) => {
+                const file = attachments[index]
+                const isVideo = file.type.startsWith('video/')
+                const isImage = file.type.startsWith('image/')
+
+                return (
+                  <div key={index} className="relative group">
+                    {isImage && (
+                      <div
+                        className="w-full aspect-[4/3] rounded-lg border border-gray-200 cursor-pointer bg-gray-50 overflow-hidden relative"
+                        onClick={() => setMediaInEditor({ url, index })}
+                      >
+                        <img
+                          src={url}
+                          alt={`Attachment ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Remove button overlay */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemoveAttachment(index)
+                          }}
+                          className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    {isVideo && (
+                      <div
+                        className="w-full aspect-[4/3] rounded-lg border border-gray-200 cursor-pointer bg-gray-900 overflow-hidden relative"
+                        onClick={() => setVideoInViewer(url)}
+                      >
+                        <video
+                          src={url}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Play icon overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <div className="bg-white/90 rounded-full p-3">
+                            <Play className="h-8 w-8 text-gray-900" fill="currentColor" />
+                          </div>
+                        </div>
+                        {/* Remove button overlay */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemoveAttachment(index)
+                          }}
+                          className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    {!isImage && !isVideo && (
+                      <div className="w-full aspect-[4/3] rounded-lg border border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-4 relative group">
+                        <FileText className="h-8 w-8 text-gray-400 mb-2" />
+                        <span className="text-xs text-gray-600 text-center truncate w-full">
+                          {file.name}
+                        </span>
+                        {/* Remove button overlay */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemoveAttachment(index)
+                          }}
+                          className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
 
@@ -559,25 +656,29 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         </div>
 
         {/* Tags */}
-        <div className="flex items-center justify-between h-[50px] border-b">
-          <span className="text-lg font-normal">Tags</span>
+        <div className="flex items-start justify-between min-h-[50px] py-3 border-b gap-4">
+          <span className="text-lg font-normal pt-0.5">Tags</span>
           {selectedTags.length > 0 ? (
             <button 
-              onClick={() => setIsTagSheetOpen(true)}
-              className="flex items-center gap-2 flex-wrap max-w-[200px] justify-end"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                setIsTagSheetOpen(true)
+              }}
+              className="flex items-center gap-2 flex-wrap max-w-[400px] justify-end"
             >
               {selectedTags.map(tagId => {
                 const tag = AVAILABLE_TAGS.find(t => t.id === tagId)
                 return tag ? (
-                  <div key={tagId} className="flex items-center gap-1.5">
-                    <div className={`w-2.5 h-2.5 rounded-full ${tag.color}`} />
-                    <span className="text-sm text-gray-900">{tag.label}</span>
+                  <div key={tagId} className={`px-3 py-1 rounded-full text-sm font-medium ${tag.color}`}>
+                    {tag.label}
                   </div>
                 ) : null
               })}
             </button>
           ) : (
             <Button 
+              type="button"
               variant="ghost" 
               className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 h-auto py-1 text-base"
               onClick={() => setIsTagSheetOpen(true)}
@@ -679,36 +780,22 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         </div>
       </div>
 
-      {/* Footer Buttons */}
-      <div className="sticky bottom-0 bg-white border-t px-4 py-4 flex items-center gap-3">
+      {/* Footer Button */}
+      <div className="sticky bottom-0 bg-white border-t px-4 py-4">
         <Button 
-          variant="outline" 
-          className="flex-1 h-11 text-lg font-medium bg-transparent rounded-full"
-          onClick={onClose}
-        >
-          Discard
-        </Button>
-        <Button 
-          className="flex-1 h-11 bg-teal-400 hover:bg-teal-500 text-white text-lg font-medium rounded-full"
-          onClick={() => alert("Save draft functionality not yet implemented")}
-        >
-          Save draft
-        </Button>
-        <Button 
-          className="flex-1 h-11 bg-blue-500 hover:bg-blue-600 text-white text-lg font-medium rounded-full"
+          className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-lg font-medium rounded-full"
           onClick={handlePublish}
         >
-          Publish task
+          {initialTask ? "Save changes" : "Publish task"}
         </Button>
       </div>
 
       {/* Tag Selection Sheet */}
       <TagSelectionSheet
-        isVisible={isTagSheetOpen}
+        isOpen={isTagSheetOpen}
         onClose={() => setIsTagSheetOpen(false)}
         selectedTagIds={selectedTags}
-        onToggleTag={handleToggleTag}
-        title="Select Tags"
+        onTagsChange={(newIds) => setSelectedTags(newIds)}
       />
 
       {/* Location Selector Modal */}
@@ -742,6 +829,41 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
             </Button>
           </div>
         </>
+      )}
+
+      {/* Media Crop Editor */}
+      {mediaInEditor && (
+        <MediaCropEditor
+          isOpen={!!mediaInEditor}
+          onClose={() => setMediaInEditor(null)}
+          imageSrc={mediaInEditor.url}
+          onCropComplete={handleCropComplete}
+        />
+      )}
+
+      {/* Video Viewer Modal */}
+      {videoInViewer && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+          {/* Header */}
+          <div className="bg-black/90 px-4 py-4 flex items-center justify-between">
+            <h2 className="text-white text-lg font-semibold">Video</h2>
+            <button
+              onClick={() => setVideoInViewer(null)}
+              className="text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          {/* Video */}
+          <div className="flex-1 flex items-center justify-center">
+            <video
+              src={videoInViewer}
+              controls
+              autoPlay
+              className="max-w-full max-h-full"
+            />
+          </div>
+        </div>
       )}
     </div>
   )

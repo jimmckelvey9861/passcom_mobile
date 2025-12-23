@@ -35,7 +35,7 @@ export default function SortStatusSheet({
   const statusOptions = [
     { id: "late", label: "Late", color: "text-red-600" },
     { id: "new", label: "New", color: "text-gray-900" },
-    { id: "to do", label: "To Do", color: "text-gray-900" },
+    { id: "to do", label: "Open", color: "text-gray-900" },
     { id: "done", label: "Done", color: "text-gray-900" },
   ]
 

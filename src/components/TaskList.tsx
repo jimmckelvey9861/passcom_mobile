@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import ViewTasksSheet from "@/components/ViewTasksSheet"
-import SortDateSheet from "@/components/SortDateSheet"
 import SortStatusSheet from "@/components/SortStatusSheet"
 import TagSelectionSheet from "@/components/TagSelectionSheet"
 import SortUserSheet from "@/components/SortUserSheet"
@@ -16,6 +15,7 @@ import CalendarAgendaView from "@/components/CalendarAgendaView"
 import OverdueTasksModal from "@/components/OverdueTasksModal"
 import { TaskCard } from "@/components/TaskCard"
 import { TaskEditor } from "@/components/TaskEditor"
+import { TaskViewer } from "@/components/TaskViewer"
 import { DUMMY_TASKS, DUMMY_USERS, CURRENT_USER_ID } from "@/data/dummyTasks"
 import { AVAILABLE_TAGS } from "@/data/tags"
 
@@ -39,7 +39,7 @@ export default function TasksPage() {
   // For "Created By" filter, exclude "Unassigned" since tasks always have a creator
   const creatorUsers = allUsers.filter((user) => user.id !== "unassigned")
 
-  const [currentDate, setCurrentDate] = useState<Date | null>(null)
+  const [currentDate, setCurrentDate] = useState<Date | undefined>(undefined)
   const [isOpenTasksExpanded, setIsOpenTasksExpanded] = useState(true)
   
   // Initialize currentDate on client side only
@@ -67,8 +67,9 @@ export default function TasksPage() {
   const [isAssigneeSheetVisible, setIsAssigneeSheetVisible] = useState(false)
   const [assigneeFilters, setAssigneeFilters] = useState<string[]>([])
   const [isOverdueModalVisible, setIsOverdueModalVisible] = useState(false)
-  const [isEditorOpen, setIsEditorOpen] = useState(false)
+  const [viewingTask, setViewingTask] = useState<any>(null)
   const [editingTask, setEditingTask] = useState<any>(null)
+  const [isCreatorOpen, setIsCreatorOpen] = useState(false)
 
   // Use imported dummy tasks
   const [tasks, setTasks] = useState(DUMMY_TASKS)
@@ -434,6 +435,30 @@ export default function TasksPage() {
     }
   }
 
+  // Handle deleting task
+  const handleDeleteTask = (taskId: string) => {
+    setTasks((prevTasks) => prevTasks.filter((t) => t.id !== taskId))
+  }
+
+  // Handle edit from viewer
+  const handleEdit = (task: any) => {
+    setViewingTask(null)
+    setEditingTask(task)
+  }
+
+  // Handle copy task
+  const handleCopyTask = (task: any) => {
+    // Create a deep copy of the task
+    const copiedTask = {
+      ...task,
+      id: undefined, // Remove ID so it's treated as a new task
+      title: `${task.title} (COPY)`, // Append (COPY) to title
+    }
+    setViewingTask(null)
+    setEditingTask(copiedTask)
+    setIsCreatorOpen(true)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Upper Control Bar - Task View Toggle / Search */}
@@ -655,10 +680,7 @@ export default function TasksPage() {
                   startDate={formatTaskDate(task.startTime)}
                   dueDate={formatTaskDate(task.dueTime)}
                   status={task.status}
-                  onClick={() => {
-                    setEditingTask(task)
-                    setIsEditorOpen(true)
-                  }}
+                  onClick={() => setViewingTask(task)}
                 />
               ))
             )
@@ -686,10 +708,7 @@ export default function TasksPage() {
               startDate={formatTaskDate(task.startTime)}
               dueDate={formatTaskDate(task.dueTime)}
               status={task.status}
-              onClick={() => {
-                setEditingTask(task)
-                setIsEditorOpen(true)
-              }}
+              onClick={() => setViewingTask(task)}
             />
           ))}
         </div>
@@ -712,8 +731,8 @@ export default function TasksPage() {
         onOpenAssigneeFilter={handleOpenAssigneeFilter}
       />
 
-      {/* Sort by Date Bottom Sheet */}
-      <SortDateSheet
+      {/* Sort by Date Bottom Sheet - Temporarily disabled */}
+      {/* <SortDateSheet
         isVisible={isDateSortSheetVisible}
         onClose={handleCloseAllSheets}
         onBack={handleBackToViewTasks}
@@ -721,7 +740,7 @@ export default function TasksPage() {
         onSelectSortOption={setSelectedDateSortOption}
         selectedRange={selectedDateRange}
         onApplyRange={setSelectedDateRange}
-      />
+      /> */}
 
       {/* Sort by Status Bottom Sheet */}
       <SortStatusSheet
@@ -735,18 +754,10 @@ export default function TasksPage() {
 
       {/* Sort by Tag Bottom Sheet */}
       <TagSelectionSheet
-        isVisible={isTagSheetVisible}
+        isOpen={isTagSheetVisible}
         onClose={handleCloseAllSheets}
         selectedTagIds={tagFilters}
-        onToggleTag={(tagId) => {
-          setTagFilters(prev => 
-            prev.includes(tagId) 
-              ? prev.filter(id => id !== tagId)
-              : [...prev, tagId]
-          )
-        }}
-        onApply={handleCloseAllSheets}
-        title="Filter by Tag"
+        onTagsChange={(newIds) => setTagFilters(newIds)}
       />
 
       {/* Sort by Creator Bottom Sheet */}
@@ -784,21 +795,33 @@ export default function TasksPage() {
         currentUserId={currentUserId}
       />
 
+      {/* Task Viewer Modal */}
+      {viewingTask && (
+        <TaskViewer
+          task={viewingTask}
+          onClose={() => setViewingTask(null)}
+          onEdit={handleEdit}
+          onCopy={handleCopyTask}
+          onDelete={handleDeleteTask}
+        />
+      )}
+
       {/* Task Editor Modal */}
       <TaskEditor
-        isVisible={isEditorOpen}
-        onClose={() => setIsEditorOpen(false)}
+        isVisible={editingTask !== null || isCreatorOpen}
+        onClose={() => {
+          setEditingTask(null)
+          setIsCreatorOpen(false)
+        }}
         onSave={handleSaveTask}
+        onDelete={handleDeleteTask}
         initialTask={editingTask}
       />
 
       {/* Fixed Create Task Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t z-40">
         <Button
-          onClick={() => {
-            setEditingTask(null)
-            setIsEditorOpen(true)
-          }}
+          onClick={() => setIsCreatorOpen(true)}
           className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-500 text-white text-base font-medium"
         >
           Create task

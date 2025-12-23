@@ -6,7 +6,8 @@ import { ChevronRight, ChevronDown } from "lucide-react"
 import { TaskCard } from "@/components/TaskCard"
 
 // Helper function to format date
-function formatTaskDate(dateString: string | Date): string {
+function formatTaskDate(dateString: string | Date | undefined): string {
+  if (!dateString) return "No date"
   const date = new Date(dateString)
   const month = date.toLocaleString('en-US', { month: 'short' })
   const day = date.getDate()
@@ -15,19 +16,22 @@ function formatTaskDate(dateString: string | Date): string {
 }
 
 interface Task {
-  id: number
+  id: number | string
   title: string
-  subtitle: string
+  subtitle?: string
   completed: boolean
   dueDate?: Date
   priority?: string
+  startTime?: Date | string
+  dueTime?: Date | string
+  status?: string
 }
 
 interface CalendarAgendaViewProps {
   tasks: Task[]
   onCreateTask: () => void
   onDateSelect?: (date: Date) => void
-  currentDate: Date
+  currentDate: Date | undefined
   viewMode: "Day" | "Week" | "Month"
   onPreviousRange: () => void
   onNextRange: () => void
@@ -47,6 +51,7 @@ export default function CalendarAgendaView({
   // Generate days based on view mode
   const generateDays = (): Date[] => {
     const days: Date[] = []
+    if (!currentDate) return days
     const startDate = new Date(currentDate)
 
     if (viewMode === "Day") {
@@ -235,7 +240,7 @@ export default function CalendarAgendaView({
                         title={task.title}
                         startDate={formatTaskDate(task.startTime)}
                         dueDate={formatTaskDate(task.dueTime)}
-                        status={task.status}
+                        status={task.status || 'todo'}
                         onClick={() => alert(`Open task details for: ${task.title}`)}
                       />
                     ))
