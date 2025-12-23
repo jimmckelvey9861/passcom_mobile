@@ -5,6 +5,8 @@ import { ChevronLeft, Paperclip, X, Check, Camera, FileText, Image } from "lucid
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 import { AVAILABLE_TAGS } from "@/data/tags"
 import TagSelectionSheet from "@/components/TagSelectionSheet"
 
@@ -70,6 +72,8 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
   const [showLocationSelector, setShowLocationSelector] = useState(false)
   const [isAttachMenuOpen, setIsAttachMenuOpen] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [isStartDateOpen, setIsStartDateOpen] = useState(false)
+  const [isDueDateOpen, setIsDueDateOpen] = useState(false)
 
   // Ensure we're on the client before using Date functions
   useEffect(() => {
@@ -356,38 +360,90 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         {/* Start Time */}
         <div className="flex items-center justify-between h-[50px] border-b">
           <span className="text-lg font-normal">Start time</span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {startDateTime ? (
               <>
+                <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="text-blue-500 text-base cursor-pointer hover:text-blue-600">
+                      {new Date(startDateTime).toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={startDateTime ? new Date(startDateTime) : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const currentTime = startDateTime ? startDateTime.split('T')[1] || '00:00' : '00:00'
+                          const dateStr = date.toISOString().split('T')[0]
+                          setStartDateTime(`${dateStr}T${currentTime}`)
+                          setIsStartDateOpen(false)
+                        }
+                      }}
+                      initialFocus
+                      className="[--cell-size:3rem]"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <div className="w-px h-4 bg-gray-300" />
                 <button
                   onClick={() => startTimeInputRef.current?.showPicker()}
                   className="text-blue-500 text-base cursor-pointer hover:text-blue-600"
                 >
-                  {formatDateTime(startDateTime)}
+                  {new Date(startDateTime).toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
                 </button>
                 <button 
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 ml-1"
                   onClick={() => setStartDateTime("")}
                 >
                   <X className="h-5 w-5" />
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => startTimeInputRef.current?.showPicker()}
-                className="text-blue-500 text-base cursor-pointer hover:text-blue-600"
-              >
-                Select
-              </button>
+              <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
+                <PopoverTrigger asChild>
+                  <button className="text-blue-500 text-base cursor-pointer hover:text-blue-600">
+                    Select
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        const dateStr = date.toISOString().split('T')[0]
+                        const now = new Date()
+                        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+                        setStartDateTime(`${dateStr}T${timeStr}`)
+                        setIsStartDateOpen(false)
+                      }
+                    }}
+                    initialFocus
+                    className="[--cell-size:3rem]"
+                  />
+                </PopoverContent>
+              </Popover>
             )}
             <input
               ref={startTimeInputRef}
               id="start-time-input"
-              type="datetime-local"
-              value={startDateTime}
-              min={getCurrentDateTime()}
-              onChange={(e) => setStartDateTime(e.target.value)}
-              className="absolute opacity-0 pointer-events-none"
+              type="time"
+              value={startDateTime ? startDateTime.split('T')[1] || '' : ''}
+              onChange={(e) => {
+                const currentDate = startDateTime ? startDateTime.split('T')[0] : new Date().toISOString().split('T')[0]
+                setStartDateTime(`${currentDate}T${e.target.value}`)
+              }}
+              className="hidden"
             />
           </div>
         </div>
@@ -395,46 +451,98 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         {/* Due Time */}
         <div className="flex items-center justify-between h-[50px] border-b">
           <span className="text-lg font-normal">Due time</span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {getEffectiveDueTime() ? (
               <>
+                <Popover open={isDueDateOpen} onOpenChange={setIsDueDateOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="text-blue-500 text-base cursor-pointer hover:text-blue-600">
+                      {new Date(getEffectiveDueTime()).toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={getEffectiveDueTime() ? new Date(getEffectiveDueTime()) : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const effectiveTime = getEffectiveDueTime()
+                          const currentTime = effectiveTime ? effectiveTime.split('T')[1] || '00:00' : '00:00'
+                          const dateStr = date.toISOString().split('T')[0]
+                          setDueDateTime(`${dateStr}T${currentTime}`)
+                          setIsDueTimeExplicitlySet(true)
+                          setIsDueDateOpen(false)
+                        }
+                      }}
+                      initialFocus
+                      className="[--cell-size:3rem]"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <div className="w-px h-4 bg-gray-300" />
                 <button
                   onClick={() => dueTimeInputRef.current?.showPicker()}
                   className="text-blue-500 text-base cursor-pointer hover:text-blue-600"
                 >
-                  {formatDateTime(getEffectiveDueTime())}
+                  {new Date(getEffectiveDueTime()).toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
                 </button>
-                {isDueTimeExplicitlySet && (
-                  <button 
-                    className="text-gray-400 hover:text-gray-600"
-                    onClick={() => {
-                      setDueDateTime("")
-                      setIsDueTimeExplicitlySet(false)
-                    }}
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                )}
+                <button 
+                  className="text-gray-400 hover:text-gray-600 ml-1"
+                  onClick={() => {
+                    setDueDateTime("")
+                    setIsDueTimeExplicitlySet(false)
+                  }}
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </>
             ) : (
-              <button
-                onClick={() => dueTimeInputRef.current?.showPicker()}
-                className="text-blue-500 text-base cursor-pointer hover:text-blue-600"
-              >
-                Select
-              </button>
+              <Popover open={isDueDateOpen} onOpenChange={setIsDueDateOpen}>
+                <PopoverTrigger asChild>
+                  <button className="text-blue-500 text-base cursor-pointer hover:text-blue-600">
+                    Select
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        const dateStr = date.toISOString().split('T')[0]
+                        const now = new Date()
+                        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+                        setDueDateTime(`${dateStr}T${timeStr}`)
+                        setIsDueTimeExplicitlySet(true)
+                        setIsDueDateOpen(false)
+                      }
+                    }}
+                    initialFocus
+                    className="[--cell-size:3rem]"
+                  />
+                </PopoverContent>
+              </Popover>
             )}
             <input
               ref={dueTimeInputRef}
               id="due-time-input"
-              type="datetime-local"
-              value={dueDateTime}
-              min={startDateTime || getCurrentDateTime()}
+              type="time"
+              value={dueDateTime ? dueDateTime.split('T')[1] || '' : ''}
               onChange={(e) => {
-                setDueDateTime(e.target.value)
+                const effectiveDateTime = getEffectiveDueTime()
+                const currentDate = dueDateTime ? dueDateTime.split('T')[0] : (effectiveDateTime ? effectiveDateTime.split('T')[0] : new Date().toISOString().split('T')[0])
+                setDueDateTime(`${currentDate}T${e.target.value}`)
                 setIsDueTimeExplicitlySet(true)
               }}
-              className="absolute opacity-0 pointer-events-none"
+              className="hidden"
             />
           </div>
         </div>

@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { CheckSquare, Clock, Calendar, MessageSquare, User, Search } from "lucide-react"
 
 export default function WorkerFeedPage() {
+  const router = useRouter()
   // Dynamic user data
   const [userData] = useState({
     firstName: "Pete",
@@ -75,7 +77,10 @@ export default function WorkerFeedPage() {
 
       <div className="py-4 bg-white">
         <div className="flex gap-2.5 px-4">
-          <button className="flex-1 flex flex-col items-center gap-2 relative min-w-0">
+          <button 
+            onClick={() => router.push('/tasks')}
+            className="flex-1 flex flex-col items-center gap-2 relative min-w-0"
+          >
             <div className="w-full h-[54px] rounded-2xl bg-[#D4EEF0] flex items-center justify-center">
               <CheckSquare className="w-7 h-7 text-[#5FA7AB]" />
             </div>
