@@ -58,6 +58,7 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
   const [description, setDescription] = useState("")
   const [startDateTime, setStartDateTime] = useState("")
   const [dueDateTime, setDueDateTime] = useState("")
+  const [isDueTimeExplicitlySet, setIsDueTimeExplicitlySet] = useState(false)
   const [requirePhoto, setRequirePhoto] = useState(false)
   const [attachments, setAttachments] = useState<File[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -86,6 +87,17 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
     const start = startTime ? new Date(startTime) : new Date()
     const due = new Date(start.getTime() + 60 * 60 * 1000) // Add 1 hour
     return due.toISOString().slice(0, 16)
+  }
+
+  // Get the effective due time to display (computed or explicit)
+  const getEffectiveDueTime = () => {
+    if (isDueTimeExplicitlySet && dueDateTime) {
+      return dueDateTime
+    }
+    if (startDateTime) {
+      return getDefaultDueTime(startDateTime)
+    }
+    return ""
   }
 
   // Get current datetime for min attribute (client-side only)
@@ -125,9 +137,10 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
       }
       if (initialTask.dueTime) {
         setDueDateTime(new Date(initialTask.dueTime).toISOString().slice(0, 16))
+        setIsDueTimeExplicitlySet(true)
       }
     } else {
-      // Reset to defaults for create mode with smart default times
+      // Reset to defaults for create mode
       setTaskTitle("")
       setDescription("")
       setRequirePhoto(false)
@@ -135,9 +148,9 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
       setSelectedTags([])
       setSelectedLocation("")
       setChecklist([])
-      const defaultStart = getDefaultStartTime()
-      setStartDateTime(defaultStart)
-      setDueDateTime(getDefaultDueTime(defaultStart))
+      setStartDateTime(getDefaultStartTime())
+      setDueDateTime("") // Don't set - will be computed
+      setIsDueTimeExplicitlySet(false)
     }
   }, [initialTask, isVisible, isClient])
 
@@ -183,13 +196,14 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
   }
 
   const handlePublish = () => {
+    const effectiveDue = getEffectiveDueTime()
     const newTask: Task = {
       id: initialTask?.id || `t${Date.now()}`,
       title: taskTitle,
       description,
       requirePhoto,
       startTime: startDateTime ? new Date(startDateTime).toISOString() : undefined,
-      dueTime: dueDateTime ? new Date(dueDateTime).toISOString() : undefined,
+      dueTime: effectiveDue ? new Date(effectiveDue).toISOString() : undefined,
       status: initialTask?.status || "new",
       priority: initialTask?.priority || "medium",
       assigneeId: initialTask?.assigneeId || "u1",
@@ -381,20 +395,25 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         <div className="flex items-center justify-between h-[50px] border-b">
           <span className="text-lg font-normal">Due time</span>
           <div className="flex items-center gap-2">
-            {dueDateTime ? (
+            {getEffectiveDueTime() ? (
               <>
                 <button
                   onClick={() => dueTimeInputRef.current?.showPicker()}
                   className="text-blue-500 text-base cursor-pointer hover:text-blue-600"
                 >
-                  {formatDateTime(dueDateTime)}
+                  {formatDateTime(getEffectiveDueTime())}
                 </button>
-                <button 
-                  className="text-gray-400 hover:text-gray-600"
-                  onClick={() => setDueDateTime("")}
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                {isDueTimeExplicitlySet && (
+                  <button 
+                    className="text-gray-400 hover:text-gray-600"
+                    onClick={() => {
+                      setDueDateTime("")
+                      setIsDueTimeExplicitlySet(false)
+                    }}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                )}
               </>
             ) : (
               <button
@@ -410,7 +429,10 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
               type="datetime-local"
               value={dueDateTime}
               min={startDateTime || getCurrentDateTime()}
-              onChange={(e) => setDueDateTime(e.target.value)}
+              onChange={(e) => {
+                setDueDateTime(e.target.value)
+                setIsDueTimeExplicitlySet(true)
+              }}
               className="absolute opacity-0 pointer-events-none"
             />
           </div>
