@@ -5,15 +5,8 @@ import { ChevronLeft, Paperclip, X, Check, Camera, FileText, Image } from "lucid
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-
-// Dummy data
-const AVAILABLE_TAGS = [
-  { id: "urgent", name: "Urgent", color: "#EF4444" },
-  { id: "design", name: "Design", color: "#3B82F6" },
-  { id: "marketing", name: "Marketing", color: "#A855F7" },
-  { id: "finance", name: "Finance", color: "#10B981" },
-  { id: "bugs", name: "Bugs", color: "#F97316" },
-]
+import { AVAILABLE_TAGS } from "@/data/tags"
+import TagSelectionSheet from "@/components/TagSelectionSheet"
 
 const AVAILABLE_LOCATIONS = [
   { id: "room101", name: "Room 101" },
@@ -72,7 +65,7 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
   const [checklist, setChecklist] = useState<ChecklistItem[]>([])
   const [isAddingChecklistItem, setIsAddingChecklistItem] = useState(false)
   const [newChecklistItem, setNewChecklistItem] = useState("")
-  const [showTagSelector, setShowTagSelector] = useState(false)
+  const [isTagSheetOpen, setIsTagSheetOpen] = useState(false)
   const [showLocationSelector, setShowLocationSelector] = useState(false)
   const [isAttachMenuOpen, setIsAttachMenuOpen] = useState(false)
 
@@ -416,15 +409,16 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
           <span className="text-lg font-normal">Tags</span>
           {selectedTags.length > 0 ? (
             <button 
-              onClick={() => setShowTagSelector(true)}
-              className="flex items-center gap-1 flex-wrap max-w-[200px]"
+              onClick={() => setIsTagSheetOpen(true)}
+              className="flex items-center gap-2 flex-wrap max-w-[200px] justify-end"
             >
               {selectedTags.map(tagId => {
                 const tag = AVAILABLE_TAGS.find(t => t.id === tagId)
                 return tag ? (
-                  <span key={tagId} className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                    {tag.name}
-                  </span>
+                  <div key={tagId} className="flex items-center gap-1.5">
+                    <div className={`w-2.5 h-2.5 rounded-full ${tag.color}`} />
+                    <span className="text-sm text-gray-900">{tag.label}</span>
+                  </div>
                 ) : null
               })}
             </button>
@@ -432,7 +426,7 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
             <Button 
               variant="ghost" 
               className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 h-auto py-1 text-base"
-              onClick={() => setShowTagSelector(true)}
+              onClick={() => setIsTagSheetOpen(true)}
             >
               Select
             </Button>
@@ -554,35 +548,14 @@ export function TaskEditor({ isVisible, onClose, onSave, initialTask }: TaskEdit
         </Button>
       </div>
 
-      {/* Tag Selector Modal */}
-      {showTagSelector && (
-        <>
-          <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowTagSelector(false)} />
-          <div className="fixed inset-x-0 bottom-0 bg-white rounded-t-3xl p-6 z-50 max-h-[70vh] overflow-auto">
-            <h2 className="text-xl font-bold mb-4">Select Tags</h2>
-            <div className="space-y-3">
-              {AVAILABLE_TAGS.map(tag => (
-                <button
-                  key={tag.id}
-                  onClick={() => handleToggleTag(tag.id)}
-                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                >
-                  <span className="text-base">{tag.name}</span>
-                  {selectedTags.includes(tag.id) && (
-                    <Check className="h-5 w-5 text-blue-500" />
-                  )}
-                </button>
-              ))}
-            </div>
-            <Button 
-              className="w-full mt-4"
-              onClick={() => setShowTagSelector(false)}
-            >
-              Done
-            </Button>
-          </div>
-        </>
-      )}
+      {/* Tag Selection Sheet */}
+      <TagSelectionSheet
+        isVisible={isTagSheetOpen}
+        onClose={() => setIsTagSheetOpen(false)}
+        selectedTagIds={selectedTags}
+        onToggleTag={handleToggleTag}
+        title="Select Tags"
+      />
 
       {/* Location Selector Modal */}
       {showLocationSelector && (

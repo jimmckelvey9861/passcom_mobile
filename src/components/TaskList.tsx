@@ -10,13 +10,14 @@ import { Calendar } from "@/components/ui/calendar"
 import ViewTasksSheet from "@/components/ViewTasksSheet"
 import SortDateSheet from "@/components/SortDateSheet"
 import SortStatusSheet from "@/components/SortStatusSheet"
-import SortTagSheet from "@/components/SortTagSheet"
+import TagSelectionSheet from "@/components/TagSelectionSheet"
 import SortUserSheet from "@/components/SortUserSheet"
 import CalendarAgendaView from "@/components/CalendarAgendaView"
 import OverdueTasksModal from "@/components/OverdueTasksModal"
 import { TaskCard } from "@/components/TaskCard"
 import { TaskEditor } from "@/components/TaskEditor"
-import { DUMMY_TASKS, DUMMY_USERS, DUMMY_TAGS, CURRENT_USER_ID } from "@/data/dummyTasks"
+import { DUMMY_TASKS, DUMMY_USERS, CURRENT_USER_ID } from "@/data/dummyTasks"
+import { AVAILABLE_TAGS } from "@/data/tags"
 
 // Helper function to format date
 function formatTaskDate(dateString: string | Date): string {
@@ -31,7 +32,7 @@ export default function TasksPage() {
   const router = useRouter()
 
   // Use imported dummy data
-  const availableTags = DUMMY_TAGS
+  const availableTags = AVAILABLE_TAGS
   const currentUserId = CURRENT_USER_ID
   const allUsers = DUMMY_USERS
 
@@ -725,14 +726,19 @@ export default function TasksPage() {
       />
 
       {/* Sort by Tag Bottom Sheet */}
-      <SortTagSheet
+      <TagSelectionSheet
         isVisible={isTagSheetVisible}
         onClose={handleCloseAllSheets}
-        onBack={handleBackToViewTasks}
-        availableTags={availableTags}
-        activeTagIds={tagFilters}
-        onApplyFilters={setTagFilters}
-        counts={filterCounts.tags}
+        selectedTagIds={tagFilters}
+        onToggleTag={(tagId) => {
+          setTagFilters(prev => 
+            prev.includes(tagId) 
+              ? prev.filter(id => id !== tagId)
+              : [...prev, tagId]
+          )
+        }}
+        onApply={handleCloseAllSheets}
+        title="Filter by Tag"
       />
 
       {/* Sort by Creator Bottom Sheet */}
