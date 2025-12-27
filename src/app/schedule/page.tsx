@@ -43,6 +43,9 @@ function SchedulePageContent() {
   const dayRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
   const ignoreScrollUntil = useRef<number>(0)
   const syncToWeekOffset = useRef<number | null>(null)
+  const touchStartX = useRef<number>(0)
+  const touchStartY = useRef<number>(0)
+  const touchStartTime = useRef<number>(0)
   
   const [isSearchActive, setIsSearchActive] = useState(false)
   const [isTeamView, setIsTeamView] = useState(false)
@@ -230,19 +233,25 @@ function SchedulePageContent() {
   
   // Scroll to a specific day
   const scrollToDay = (dateKey: string) => {
+    // Don't scroll while dragging
+    if (isDragging) {
+      return
+    }
+    
     const container = scrollContainerRef.current
     const dayElement = dayRefs.current[dateKey]
     const miniCalendar = miniCalendarRef.current
     
-    if (container && dayElement && miniCalendar) {
+    if (container && dayElement) {
       ignoreScrollUntil.current = Date.now() + 1000
       
-      const headerHeight = 56
-      const miniCalendarHeight = 0 // Will be hidden when scrolling
+      const headerHeight = 56 // Main header
+      const searchBannerHeight = searchQuery.trim() ? 35 : 0 // Search banner if active
+      const miniCalendarHeight = miniCalendar ? miniCalendar.offsetHeight : 0 // Actual mini calendar height
       const elementTop = dayElement.offsetTop
       
       container.scrollTo({
-        top: elementTop - miniCalendarHeight - headerHeight,
+        top: elementTop - miniCalendarHeight - headerHeight - searchBannerHeight,
         behavior: 'smooth'
       })
     }
@@ -259,57 +268,167 @@ function SchedulePageContent() {
     return () => clearTimeout(timer)
   }, [isMounted])
   
-  // Mini calendar drag handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
+  // Sync vertical scroll when mini calendar week changes (via swipe only)
+  useEffect(() => {
+    // Only sync if we have a target offset to sync to
+    const targetOffset = syncToWeekOffset.current
+    if (targetOffset === null) return
+    
+    // Don't sync while dragging
+    if (isDragging || isTransitioning) {
+      return
+    }
+    
+    // Don't run during initial mount period to avoid conflicts with "scroll to today"
+    if (!isMounted) return
+    
+    // Find the first day of the target week
+    const weekStart = getStartOfWeek(today)
+    weekStart.setDate(weekStart.getDate() + (targetOffset * 7))
+    const weekStartKey = formatDateKey(weekStart)
+    
+    // Find the first day in this week
+    const targetDay = allDays.find(day => {
+      const dayWeekStart = getStartOfWeek(day.date)
+      return formatDateKey(dayWeekStart) === weekStartKey
+    })
+    
+    if (targetDay) {
+      // Clear the target offset after successful scroll
+      syncToWeekOffset.current = null
+      scrollToDay(targetDay.dateKey)
+    } else {
+      // Week not loaded yet - expand range and retry
+      if (targetOffset < loadedWeeksRange.start || targetOffset > loadedWeeksRange.end) {
+        setLoadedWeeksRange(prev => ({
+          start: Math.min(prev.start, targetOffset - 2),
+          end: Math.max(prev.end, targetOffset + 2)
+        }))
+        // Don't clear target - let effect retry when allDays updates
+      } else {
+        // Week should be loaded but not found - clear to prevent infinite loop
+        syncToWeekOffset.current = null
+      }
+    }
+  }, [currentWeekOffset, allDays, today, loadedWeeksRange, isMounted])
+  
+  // Mini calendar drag handlers - Core logic
+  const handleDragStart = (clientX: number, clientY: number) => {
+    touchStartX.current = clientX
+    touchStartY.current = clientY
+    touchStartTime.current = Date.now()
     setIsDragging(true)
-    setDragOffset(0)
+    setIsTransitioning(false)
   }
-  
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return
-    const touch = e.touches[0]
-    const container = miniCalendarRef.current
-    if (!container) return
+
+  const handleDragMove = (clientX: number, clientY: number) => {
+    if (!isDragging) return false
     
-    const containerWidth = container.offsetWidth
-    const deltaX = touch.clientX - (containerWidth / 2)
-    setDragOffset(deltaX)
+    const diffX = clientX - touchStartX.current
+    const diffY = clientY - touchStartY.current
+    
+    // Only allow horizontal drag if movement is more horizontal than vertical
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      setDragOffset(diffX)
+      return true // Indicate we're handling the drag
+    }
+    return false
   }
-  
-  const handleTouchEnd = () => {
+
+  const handleDragEnd = (clientX: number) => {
     if (!isDragging) return
+    
+    const touchEndTime = Date.now()
+    const diffX = clientX - touchStartX.current
+    const diffTime = touchEndTime - touchStartTime.current
+    
+    // Calculate velocity (pixels per millisecond)
+    const velocity = Math.abs(diffX) / diffTime
+    
+    // Determine if we should snap to next/prev week
+    const threshold = 80 // pixels
+    const velocityThreshold = 0.5 // pixels per ms (fast flick)
+    
+    let shouldChangeWeek = false
+    let direction = 0
+    
+    if (Math.abs(diffX) > threshold || velocity > velocityThreshold) {
+      shouldChangeWeek = true
+      direction = diffX > 0 ? -1 : 1 // Swiped right = prev week (-1), left = next week (+1)
+    }
+    
     setIsDragging(false)
+    setIsTransitioning(true)
     
-    const threshold = 100
-    if (Math.abs(dragOffset) > threshold) {
+    if (shouldChangeWeek) {
+      // Approach: Animate to show target week, then instantly swap and reset
+      const containerWidth = miniCalendarRef.current?.offsetWidth || 0
+      const snapTarget = direction === -1 ? containerWidth : -containerWidth
+      
       setIsTransitioning(true)
-      const direction = dragOffset > 0 ? -1 : 1
-      setCurrentWeekOffset(prev => prev + direction)
+      setDragOffset(snapTarget)
+      
+      // After reaching target position, instantly change weeks and reset
       setTimeout(() => {
-        setDragOffset(0)
+        // Turn off transitions completely
         setIsTransitioning(false)
+        
+        // Wait one frame for CSS to update
+        requestAnimationFrame(() => {
+          // Now update both atomically (React will batch)
+          ignoreScrollUntil.current = Date.now() + 1000
+          // Store target week offset BEFORE changing state
+          setCurrentWeekOffset(prev => {
+            const newOffset = prev + direction
+            syncToWeekOffset.current = newOffset
+            return newOffset
+          })
+          setDragOffset(0)
+        })
       }, 300)
     } else {
+      // Snap back to center from current position
+      setIsTransitioning(true)
       setDragOffset(0)
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 300)
     }
   }
-  
+
+  // Touch event handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    handleDragStart(e.touches[0].clientX, e.touches[0].clientY)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (handleDragMove(e.touches[0].clientX, e.touches[0].clientY)) {
+      e.preventDefault() // Prevent vertical scroll when dragging horizontally
+    }
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    handleDragEnd(e.changedTouches[0].clientX)
+  }
+
+  // Mouse event handlers
   const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    setDragOffset(0)
+    e.preventDefault()
+    handleDragStart(e.clientX, e.clientY)
   }
-  
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
-    setDragOffset(e.movementX * 2)
+    handleDragMove(e.clientX, e.clientY)
   }
-  
-  const handleMouseUp = () => {
-    handleTouchEnd()
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    handleDragEnd(e.clientX)
   }
-  
-  const handleMouseLeave = () => {
-    if (isDragging) handleTouchEnd()
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    if (isDragging) {
+      handleDragEnd(e.clientX)
+    }
   }
   
   // Search handlers
@@ -437,6 +556,7 @@ function SchedulePageContent() {
               transform: `translateX(calc(-33.333% + ${dragOffset}px))`,
               transition: isDragging ? 'none' : (isTransitioning ? 'transform 300ms ease-out' : 'none'),
               width: '300%',
+              pointerEvents: isDragging ? 'none' : 'auto', // Disable clicks during drag
             }}
           >
             {/* Previous Week */}

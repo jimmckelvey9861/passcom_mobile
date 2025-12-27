@@ -97,17 +97,19 @@ export function generateShiftsForDays(startDate: Date, numDays: number): Shift[]
     const dateStr = date.toISOString().split('T')[0]
     const isPast = date < new Date(new Date().setHours(0, 0, 0, 0))
     
-    // Generate 3-5 shifts per day
-    const numShifts = 3 + Math.floor(Math.random() * 3)
+    // Generate 3-5 shifts per day (deterministic based on day)
+    const numShifts = 3 + (day % 3)
     
     for (let i = 0; i < numShifts; i++) {
       const template = shiftTemplates[i % shiftTemplates.length]
       const user = users[i % users.length]
-      const job = template.jobs[Math.floor(Math.random() * template.jobs.length)]
+      // Deterministic job selection based on day and shift index
+      const job = template.jobs[(day + i) % template.jobs.length]
       
       let status: Shift['status'] = 'scheduled'
       if (isPast) {
-        status = Math.random() > 0.1 ? 'completed' : 'no-show'
+        // Deterministic status for past shifts
+        status = (day + i) % 10 === 0 ? 'no-show' : 'completed'
       } else if (date.toDateString() === new Date().toDateString() && i === 1) {
         status = 'clocked-in'
       }
