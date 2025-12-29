@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { CheckSquare, Clock, Calendar, MessageSquare, User, Search } from "lucide-react"
+import { CheckSquare, Clock, Calendar, MessageSquare, User, Search, Bell } from "lucide-react"
 
 export default function WorkerFeedPage() {
   const router = useRouter()
@@ -16,7 +16,7 @@ export default function WorkerFeedPage() {
 
   const [currentPay] = useState(342.50)
 
-  const [notificationCount] = useState(3)
+  const [notificationCount] = useState(4) // Total notifications (2 today + 2 earlier)
   const [taskCount] = useState(1)
   const [currentShift] = useState({
     startTime: "9:52 AM",
@@ -128,6 +128,21 @@ export default function WorkerFeedPage() {
               <Calendar className="w-7 h-7 text-[#E89B8C]" />
             </div>
             <span className="text-sm font-medium text-gray-900">Schedule</span>
+          </button>
+
+          <button 
+            onClick={() => router.push('/notifications')}
+            className="flex-1 flex flex-col items-center gap-2 relative min-w-0"
+          >
+            <div className="w-full h-[54px] rounded-2xl bg-[#FFE8CC] flex items-center justify-center">
+              <Bell className="w-7 h-7 text-[#E6A23C]" />
+            </div>
+            {notificationCount > 0 && (
+              <div className="absolute top-0 right-2 w-5 h-5 bg-[#E25C4A] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                {notificationCount}
+              </div>
+            )}
+            <span className="text-sm font-medium text-gray-900">Alerts</span>
           </button>
         </div>
       </div>
