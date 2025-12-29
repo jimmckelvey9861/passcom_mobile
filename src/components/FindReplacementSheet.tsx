@@ -63,7 +63,7 @@ export default function FindReplacementSheet({
       onSendRequest(selectedUserIds)
       setSelectedUserIds([])
       setSearchQuery("")
-      onClose()
+      // Parent component will handle closing and showing confirmation
     }
   }
 

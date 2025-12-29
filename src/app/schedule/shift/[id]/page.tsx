@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Calendar, Clock, Briefcase, Users, MessageCircle, MoreVertical, Clock4 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import FindReplacementSheet from "@/components/FindReplacementSheet"
+import ReplacementRequestSentModal from "@/components/ReplacementRequestSentModal"
 
 // Mock function to get shift details - will be replaced with real data later
 function getShiftDetails(id: string) {
@@ -60,8 +61,9 @@ function ShiftDetailsContent({ params }: { params: Promise<{ id: string }> }) {
   const shift = getShiftDetails(id)
   const availableTeammates = getAvailableTeammates(id)
 
-  // State for find replacement sheet
+  // State for find replacement sheet and confirmation
   const [isFindReplacementOpen, setIsFindReplacementOpen] = useState(false)
+  const [isRequestSentModalOpen, setIsRequestSentModalOpen] = useState(false)
 
   // Status indicator styling
   const statusConfig = {
@@ -88,8 +90,18 @@ function ShiftDetailsContent({ params }: { params: Promise<{ id: string }> }) {
     console.log('Selected Users:', selectedUserIds)
     console.log('Selected Users Details:', availableTeammates.filter(u => selectedUserIds.includes(u.id)))
     
+    // Close the find replacement sheet
+    setIsFindReplacementOpen(false)
+    
+    // Show confirmation modal
+    setIsRequestSentModalOpen(true)
+    
     // TODO: Send to backend API
-    alert(`✅ Replacement request sent!\n\nRequested ${selectedUserIds.length} teammate(s) to cover this shift.\nPending admin approval.`)
+  }
+
+  // Handle confirmation modal close
+  const handleConfirmationClose = () => {
+    setIsRequestSentModalOpen(false)
   }
 
   return (
@@ -238,6 +250,12 @@ function ShiftDetailsContent({ params }: { params: Promise<{ id: string }> }) {
         onSendRequest={handleSendReplacementRequest}
         currentShiftId={shift.id}
         availableUsers={availableTeammates}
+      />
+
+      {/* Replacement Request Sent Confirmation Modal */}
+      <ReplacementRequestSentModal
+        isOpen={isRequestSentModalOpen}
+        onClose={handleConfirmationClose}
       />
     </div>
   )

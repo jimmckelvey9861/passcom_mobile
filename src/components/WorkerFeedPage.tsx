@@ -103,7 +103,10 @@ export default function WorkerFeedPage() {
             <span className="text-sm font-medium text-gray-900">Tasks</span>
           </button>
 
-          <button className="flex-1 flex flex-col items-center gap-2 min-w-0">
+          <button 
+            onClick={() => router.push('/time-clock')}
+            className="flex-1 flex flex-col items-center gap-2 min-w-0"
+          >
             <div className="w-full h-[54px] rounded-2xl bg-[#E6E3F5] flex items-center justify-center">
               <Clock className="w-7 h-7 text-[#8B7DC3]" />
             </div>

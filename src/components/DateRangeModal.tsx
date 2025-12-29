@@ -25,6 +25,8 @@ export default function DateRangeModal({
   const [startDate, setStartDate] = useState<Date | undefined>(initialRange?.start)
   const [endDate, setEndDate] = useState<Date | undefined>(initialRange?.end)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStartDate, setDragStartDate] = useState<Date | undefined>()
 
   // Reset dates when modal opens with new initial range
   useEffect(() => {
@@ -35,9 +37,38 @@ export default function DateRangeModal({
     }
   }, [isVisible, initialRange])
 
+  // Add global mouse up handler for drag
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        handleDragEnd()
+      }
+    }
+
+    document.addEventListener('mouseup', handleGlobalMouseUp)
+    document.addEventListener('touchend', handleGlobalMouseUp)
+
+    return () => {
+      document.removeEventListener('mouseup', handleGlobalMouseUp)
+      document.removeEventListener('touchend', handleGlobalMouseUp)
+    }
+  }, [isDragging])
+
   if (!isVisible) return null
 
+  // Check if date is in the past
+  const isPastDate = (date: Date) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return date < today
+  }
+
   const handleDateClick = (clickedDate: Date) => {
+    // Prevent selection of past dates
+    if (isPastDate(clickedDate)) {
+      return
+    }
+
     if (!startDate || (startDate && endDate)) {
       setStartDate(clickedDate)
       setEndDate(undefined)
@@ -49,6 +80,38 @@ export default function DateRangeModal({
         setEndDate(clickedDate)
       }
     }
+  }
+
+  // Handle drag start
+  const handleDragStart = (date: Date) => {
+    if (isPastDate(date)) {
+      return
+    }
+    setIsDragging(true)
+    setDragStartDate(date)
+    setStartDate(date)
+    setEndDate(undefined)
+  }
+
+  // Handle drag over dates
+  const handleDragOver = (date: Date) => {
+    if (!isDragging || !dragStartDate || isPastDate(date)) {
+      return
+    }
+
+    if (date < dragStartDate) {
+      setStartDate(date)
+      setEndDate(dragStartDate)
+    } else {
+      setStartDate(dragStartDate)
+      setEndDate(date)
+    }
+  }
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    setIsDragging(false)
+    setDragStartDate(undefined)
   }
 
   const isDateInRange = (day: Date) => {
@@ -171,17 +234,38 @@ export default function DateRangeModal({
                 const isStart = isStartDate(currentDate)
                 const isEnd = isEndDate(currentDate)
                 const inRange = isDateInRange(currentDate)
+                const isPast = isPastDate(currentDate)
 
                 return (
                   <button
                     key={day}
                     onClick={() => handleDateClick(currentDate)}
+                    onMouseDown={() => handleDragStart(currentDate)}
+                    onMouseEnter={() => handleDragOver(currentDate)}
+                    onMouseUp={handleDragEnd}
+                    onTouchStart={() => handleDragStart(currentDate)}
+                    onTouchMove={(e) => {
+                      const touch = e.touches[0]
+                      const element = document.elementFromPoint(touch.clientX, touch.clientY)
+                      if (element && element.getAttribute('data-date')) {
+                        const dateStr = element.getAttribute('data-date')
+                        if (dateStr) {
+                          const date = new Date(dateStr)
+                          handleDragOver(date)
+                        }
+                      }
+                    }}
+                    onTouchEnd={handleDragEnd}
+                    data-date={currentDate.toISOString()}
+                    disabled={isPast}
                     className={`aspect-square flex items-center justify-center text-sm relative ${
-                      isStart || isEnd
-                        ? "bg-blue-500 text-white font-bold rounded-full z-10"
-                        : inRange
-                          ? "bg-blue-100 text-gray-900"
-                          : "text-gray-700 hover:bg-gray-100 rounded-full"
+                      isPast
+                        ? "text-gray-300 cursor-not-allowed"
+                        : isStart || isEnd
+                          ? "bg-blue-500 text-white font-bold rounded-full z-10"
+                          : inRange
+                            ? "bg-blue-100 text-gray-900"
+                            : "text-gray-700 hover:bg-gray-100 rounded-full cursor-pointer"
                     }`}
                   >
                     {inRange && !isStart && !isEnd && <div className="absolute inset-0 bg-blue-100 -z-10" />}

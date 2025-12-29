@@ -2,10 +2,11 @@
 
 import { Suspense, useState, useMemo, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, User, Users, Bell, Search, X, Calendar } from "lucide-react"
+import { ArrowLeft, User, Users, Bell, Search, X, Calendar, CalendarClock } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ShiftCard } from "@/components/ShiftCard"
 import { Shift, generateShiftsForDays, calculateShiftHours } from "@/data/dummyShifts"
+import { mockTimeOffStats } from "@/data/dummyTimeOff"
 
 // Helper functions for date manipulation
 const getStartOfWeek = (date: Date) => {
@@ -474,6 +475,20 @@ function SchedulePageContent() {
                 {/* Notifications */}
                 <button className={headerBtnClass}>
                   <Bell className="h-[30px] w-[30px]" strokeWidth={2} />
+                </button>
+
+                {/* Time Off Requests */}
+                <button 
+                  className={headerBtnClass}
+                  onClick={() => router.push('/time-off')}
+                  title="Time Off Requests"
+                >
+                  <CalendarClock className="h-[30px] w-[30px]" strokeWidth={2} />
+                  {mockTimeOffStats.pending > 0 && (
+                    <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                      {mockTimeOffStats.pending}
+                    </span>
+                  )}
                 </button>
 
                 {/* Calendar Icon - Set Availability */}
