@@ -497,7 +497,7 @@ function SchedulePageContent() {
                   onClick={() => router.push('/availability')}
                   title="Set My Availability"
                 >
-                  <Calendar className="h-[30px] w-[30px]" strokeWidth={2} />
+                  <Calendar className="h-[30px] w-[30px] text-green-600" strokeWidth={2} />
                 </button>
 
                 {/* Search */}
