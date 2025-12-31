@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Bell, Play, Square, Coffee, DollarSign, Clock, MapPin, AlertCircle, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import BottomNav from "@/components/BottomNav"
 
 interface Break {
   start: Date
@@ -302,7 +303,7 @@ function TimeClockContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col pb-20">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b px-4 py-4 flex items-center justify-between z-10 shadow-sm">
         <Button 
@@ -648,6 +649,9 @@ function TimeClockContent() {
           </div>
         </>
       )}
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   )
 }

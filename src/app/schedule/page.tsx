@@ -6,6 +6,7 @@ import { ArrowLeft, User, Users, Bell, Search, X, Calendar } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ShiftCard } from "@/components/ShiftCard"
 import { Shift, generateShiftsForDays, calculateShiftHours } from "@/data/dummyShifts"
+import BottomNav from "@/components/BottomNav"
 
 // Helper functions for date manipulation
 const getStartOfWeek = (date: Date) => {
@@ -440,7 +441,7 @@ function SchedulePageContent() {
   const headerBtnClass = "h-12 w-12 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors focus:outline-none"
   
   return (
-    <div className="h-screen bg-white flex flex-col">
+    <div className="h-screen bg-white flex flex-col pb-20">
       {/* 1. HEADER */}
       <div className="sticky top-0 bg-white border-b z-30">
         <div className="h-14 px-4 flex items-center justify-between">
@@ -702,6 +703,9 @@ function SchedulePageContent() {
           </div>
         ))}
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   )
 }

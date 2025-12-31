@@ -12,6 +12,7 @@ import SortStatusSheet from "@/components/SortStatusSheet"
 import TagSelectionSheet from "@/components/TagSelectionSheet"
 import SortUserSheet from "@/components/SortUserSheet"
 import DateRangeModal from "@/components/DateRangeModal"
+import BottomNav from "@/components/BottomNav"
 
 // Helper functions for date manipulation
 const getStartOfWeek = (date: Date) => {
@@ -905,7 +906,7 @@ function TasksPageContent() {
   const headerBtnClass = "h-12 w-12 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors focus:outline-none"
   
   return (
-    <div className="h-screen bg-white flex flex-col">
+    <div className="h-screen bg-white flex flex-col pb-20">
       
       {/* 1. TOP NAVIGATION (Sticky) */}
       <div className="sticky top-0 bg-white border-b z-30">
@@ -1479,6 +1480,9 @@ function TasksPageContent() {
         }}
         onApply={handleDateRangeApply}
       />
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   )
 }

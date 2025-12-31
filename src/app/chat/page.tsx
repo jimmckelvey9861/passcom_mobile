@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronLeft, Plus, Search, Megaphone, Users, MessageCircle, X } from "lucide-react"
+import BottomNav from "@/components/BottomNav"
 
 type TabType = "channels" | "direct"
 
@@ -80,7 +81,7 @@ function ChatInboxContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col pb-20">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b px-4 py-2 flex items-center gap-2 z-10 h-14">
         <button
@@ -282,6 +283,9 @@ function ChatInboxContent() {
           </div>
         </>
       )}
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   )
 }
