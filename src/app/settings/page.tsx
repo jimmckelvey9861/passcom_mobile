@@ -1,10 +1,13 @@
 "use client"
 
 import { Suspense } from "react"
-import { ChevronRight, Palette, Accessibility, Lock, Bell, User } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ArrowLeft, ChevronRight, Palette, Accessibility, Lock, Bell, User } from "lucide-react"
 import BottomNav from "@/components/BottomNav"
 
 function SettingsContent() {
+  const router = useRouter()
+  
   const settingsItems = [
     {
       id: "appearance",
@@ -41,8 +44,14 @@ function SettingsContent() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="bg-white border-b px-4 py-3">
-        <h1 className="text-xl font-bold text-gray-900">Settings</h1>
+      <div className="sticky top-0 bg-white border-b px-4 py-2 flex items-center gap-2 z-10 h-14">
+        <button
+          onClick={() => router.push("/")}
+          className="h-12 w-12 -ml-2 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors focus:outline-none"
+        >
+          <ArrowLeft className="h-[30px] w-[30px]" strokeWidth={2.5} />
+        </button>
+        <h1 className="text-xl font-bold text-gray-900 flex-1">Settings</h1>
       </div>
 
       {/* Content */}

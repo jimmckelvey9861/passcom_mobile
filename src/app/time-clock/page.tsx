@@ -306,18 +306,19 @@ function TimeClockContent() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col pb-20">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b px-4 py-4 flex items-center justify-between z-10 shadow-sm">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 -ml-2"
+        <button
+          className="h-12 w-12 -ml-2 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors focus:outline-none"
           onClick={() => router.back()}
         >
-          <ArrowLeft className="h-[30px] w-[30px] text-blue-600" />
-        </Button>
+          <ArrowLeft className="h-[30px] w-[30px]" strokeWidth={2.5} />
+        </button>
         <h1 className="text-lg font-semibold">Time Clock</h1>
-        <Button variant="ghost" size="icon" className="h-10 w-10 -mr-2">
-          <Bell className="h-6 w-6 text-gray-600" />
-        </Button>
+        <button
+          className="h-12 w-12 -mr-2 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors focus:outline-none"
+          onClick={() => router.push('/notification-settings/time-clock')}
+        >
+          <Bell className="h-[30px] w-[30px]" strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* Main Content */}
