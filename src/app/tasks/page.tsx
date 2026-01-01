@@ -1232,9 +1232,13 @@ function TasksPageContent() {
                       {day.tasks.length > 0 ? (
                         <div className="space-y-3">
                           {day.tasks.map((task) => (
-                            <div 
-                              key={task.id} 
-                              className={`rounded-xl p-4 border transition-all active:scale-[0.99] ${
+                            <button 
+                              key={task.id}
+                              onClick={() => {
+                                setEditingTask(task)
+                                setIsTaskEditorOpen(true)
+                              }}
+                              className={`w-full text-left rounded-xl p-4 border transition-all active:scale-[0.99] ${
                                 task.status === 'done' 
                                   ? 'bg-gray-50 border-gray-200 opacity-75' 
                                   : 'bg-white border-gray-200 shadow-sm hover:border-blue-200'
@@ -1264,7 +1268,7 @@ function TasksPageContent() {
                                   PS
                                 </div>
                               </div>
-                            </div>
+                            </button>
                           ))}
                         </div>
                       ) : (
