@@ -1034,40 +1034,33 @@ function AvailabilityHubContent() {
 
               {/* Step 2: Date & Time */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Date & Time</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                      Start Date & Time
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                      End Date & Time
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  ⏰ Set both the date and time for your request
-                </p>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Start Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
-              {/* Step 3: Reason */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Reason / Note
+                  End Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Step 3: Note */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Note
                 </label>
                 <textarea
                   value={reason}
