@@ -122,7 +122,18 @@ function TasksPageContent() {
       // Use global tasks - filter tasks for this specific day
       let tasks: any[] = globalTasks.filter(task => {
         const taskDate = new Date(task.dueTime)
-        return isSameDay(taskDate, date)
+        const matches = isSameDay(taskDate, date)
+        
+        // Debug: Show task date matching
+        if (task.title.includes('Jan 4')) {
+          console.log(`🗓️ Task "${task.title}"`)
+          console.log(`   Stored dueTime: ${task.dueTime}`)
+          console.log(`   Parsed as local: ${taskDate.toLocaleString()}`)
+          console.log(`   Checking against: ${date.toLocaleDateString()}`)
+          console.log(`   Match: ${matches}`)
+        }
+        
+        return matches
       })
       
       const daysSinceStart = i
