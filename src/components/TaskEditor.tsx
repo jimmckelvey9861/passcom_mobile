@@ -538,7 +538,11 @@ export function TaskEditor({ isVisible, onClose, onSave, onDelete, onComplete, i
                   onSelect={(date) => {
                     if (date) {
                       const currentTime = startDateTime ? startDateTime.split('T')[1] || '00:00' : '00:00'
-                      const dateStr = date.toISOString().split('T')[0]
+                      // Use local date components to avoid timezone conversion issues
+                      const year = date.getFullYear()
+                      const month = String(date.getMonth() + 1).padStart(2, '0')
+                      const day = String(date.getDate()).padStart(2, '0')
+                      const dateStr = `${year}-${month}-${day}`
                       setStartDateTime(`${dateStr}T${currentTime}`)
                       setIsStartDateOpen(false)
                     }
@@ -599,7 +603,11 @@ export function TaskEditor({ isVisible, onClose, onSave, onDelete, onComplete, i
                   onSelect={(date) => {
                     if (date) {
                       const currentTime = dueDateTime ? dueDateTime.split('T')[1] || '00:00' : '00:00'
-                      const dateStr = date.toISOString().split('T')[0]
+                      // Use local date components to avoid timezone conversion issues
+                      const year = date.getFullYear()
+                      const month = String(date.getMonth() + 1).padStart(2, '0')
+                      const day = String(date.getDate()).padStart(2, '0')
+                      const dateStr = `${year}-${month}-${day}`
                       setDueDateTime(`${dateStr}T${currentTime}`)
                       setIsDueTimeExplicitlySet(true)
                       setIsDueDateOpen(false)
