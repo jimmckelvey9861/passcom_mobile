@@ -104,13 +104,6 @@ function TasksPageContent() {
   
   // Generate days dynamically based on loaded weeks range
   const allDays = useMemo(() => {
-    console.log('📅 Rendering tasks page with global tasks:', globalTasks)
-    console.log('📊 Task summary:')
-    globalTasks.forEach(task => {
-      const taskDate = new Date(task.dueTime)
-      console.log(`   - "${task.title}" | Due: ${task.dueTime} | Local: ${taskDate.toLocaleDateString()} ${taskDate.toLocaleTimeString()}`)
-    })
-    
     const days = []
     const start = getStartOfWeek(today)
     start.setDate(start.getDate() + (loadedWeeksRange.start * 7))
@@ -125,8 +118,10 @@ function TasksPageContent() {
       const isPast = date < today && !isSameDay(date, today)
       
       // Use global tasks - filter tasks for this specific day
+      // Use startTime if available, otherwise fall back to dueTime
       let tasks: any[] = globalTasks.filter(task => {
-        const taskDate = new Date(task.dueTime)
+        const taskDateString = task.startTime || task.dueTime
+        const taskDate = new Date(taskDateString)
         return isSameDay(taskDate, date)
       })
       
@@ -1170,6 +1165,17 @@ function TasksPageContent() {
                                   }`}>
                                     {task.title}
                                   </h3>
+                                  {/* Show due date if it exists and differs from start time */}
+                                  {task.dueTime && task.dueTime !== task.startTime && (
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                      Due: {new Date(task.dueTime).toLocaleDateString('en-US', { 
+                                        month: 'short', 
+                                        day: 'numeric',
+                                        hour: 'numeric',
+                                        minute: '2-digit'
+                                      })}
+                                    </p>
+                                  )}
                                 </div>
                                 
                                 {/* Avatar / Assignee */}
