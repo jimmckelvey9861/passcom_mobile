@@ -104,6 +104,8 @@ function TasksPageContent() {
   
   // Generate days dynamically based on loaded weeks range
   const allDays = useMemo(() => {
+    console.log('📅 Rendering tasks page with global tasks:', globalTasks)
+    
     const days = []
     const start = getStartOfWeek(today)
     start.setDate(start.getDate() + (loadedWeeksRange.start * 7))
@@ -117,151 +119,13 @@ function TasksPageContent() {
       const dateKey = formatDateKey(date)
       const isPast = date < today && !isSameDay(date, today)
       
-      // Mock tasks for this day
-      let tasks: any[] = []
+      // Use global tasks - filter tasks for this specific day
+      let tasks: any[] = globalTasks.filter(task => {
+        const taskDate = new Date(task.dueTime)
+        return isSameDay(taskDate, date)
+      })
+      
       const daysSinceStart = i
-      
-      // Task 1: New status, Kitchen tag, Pete creates, Pete assigned
-      if (daysSinceStart % 4 === 0) {
-        tasks.push({ 
-          id: `task-${i}-1`, 
-          title: "Check Equipment Temperatures", 
-          time: "8:00 AM", 
-          status: "new",
-          tags: ["kitchen", "maintenance"],
-          creatorId: 'u-1', // Pete Seager
-          assigneeId: 'u-1',
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 2: Open status, Prep tag, Pete creates, Jane assigned
-      if (daysSinceStart % 3 === 1) {
-        tasks.push({ 
-          id: `task-${i}-2`, 
-          title: "Prep vegetables for service", 
-          time: "10:00 AM", 
-          status: "open",
-          tags: ["prep", "kitchen"],
-          creatorId: 'u-1', // Pete Seager
-          assigneeId: 'u-2', // Jane Smith
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 3: Done status, Cleaning tag, Jane creates, Jane assigned
-      if (daysSinceStart % 3 === 0 && i > 0) {
-        tasks.push({ 
-          id: `task-${i}-3`, 
-          title: "Deep clean walk-in cooler", 
-          time: "2:00 PM", 
-          status: "done",
-          tags: ["cleaning"],
-          creatorId: 'u-2', // Jane Smith
-          assigneeId: 'u-2',
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 4: Late status (past tasks only), Urgent tag, Pete creates, Pete assigned
-      if (daysSinceStart % 5 === 2 && isPast) {
-        tasks.push({ 
-          id: `task-${i}-4`, 
-          title: "Review and respond to supplier emails", 
-          time: "9:00 AM", 
-          status: "late",
-          tags: ["urgent", "admin"],
-          creatorId: 'u-1', // Pete Seager
-          assigneeId: 'u-1',
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 5: Open status with bounty, multiple tags, Jane creates, Pete assigned
-      if (daysSinceStart % 4 === 2) {
-        tasks.push({ 
-          id: `task-${i}-5`, 
-          title: "Inventory count - dry storage", 
-          time: "3:00 PM", 
-          status: "open",
-          tags: ["inventory", "admin"],
-          isBounty: true,
-          price: "$10.00",
-          creatorId: 'u-2', // Jane Smith
-          assigneeId: 'u-1', // Pete Seager
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 6: New status, single tag, Jane creates, unassigned
-      if (daysSinceStart % 6 === 3) {
-        tasks.push({ 
-          id: `task-${i}-6`, 
-          title: "Order new aprons and uniforms", 
-          time: "11:00 AM", 
-          status: "new",
-          tags: ["admin"],
-          creatorId: 'u-2', // Jane Smith
-          assigneeId: 'unassigned',
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 7: Done status, Maintenance tag, Pete creates, Pete assigned
-      if (daysSinceStart % 5 === 0 && i > 0) {
-        tasks.push({ 
-          id: `task-${i}-7`, 
-          title: "Replace air filter in exhaust hood", 
-          time: "Closing", 
-          status: "done",
-          tags: ["maintenance"],
-          creatorId: 'u-1', // Pete Seager
-          assigneeId: 'u-1',
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 8: Open status, Kitchen + Urgent tags, Pete creates, Jane assigned
-      if (daysSinceStart % 7 === 1) {
-        tasks.push({ 
-          id: `task-${i}-8`, 
-          title: "Fix leaking faucet at station 3", 
-          time: "ASAP", 
-          status: "open",
-          tags: ["kitchen", "urgent", "maintenance"],
-          creatorId: 'u-1', // Pete Seager
-          assigneeId: 'u-2', // Jane Smith
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 9: New status, Prep + Cleaning tags, Jane creates, Jane assigned
-      if (daysSinceStart % 8 === 4) {
-        tasks.push({ 
-          id: `task-${i}-9`, 
-          title: "Sanitize all cutting boards", 
-          time: "Opening", 
-          status: "new",
-          tags: ["prep", "cleaning"],
-          creatorId: 'u-2', // Jane Smith
-          assigneeId: 'u-2',
-          dueTime: date.toISOString()
-        })
-      }
-      
-      // Task 10: Late status (past only), no tags, Pete creates, unassigned
-      if (daysSinceStart % 9 === 5 && isPast) {
-        tasks.push({ 
-          id: `task-${i}-10`, 
-          title: "Schedule staff meeting for next week", 
-          time: "End of Day", 
-          status: "late",
-          tags: [],
-          creatorId: 'u-1', // Pete Seager
-          assigneeId: 'unassigned',
-          dueTime: date.toISOString()
-        })
-      }
       
       // Filter based on team view
       if (!isTeamView) {
@@ -281,7 +145,7 @@ function TasksPageContent() {
     }
     
     return days
-  }, [today, loadedWeeksRange, isTeamView, currentUserId, isMounted])
+  }, [today, loadedWeeksRange, isTeamView, currentUserId, isMounted, globalTasks])
   
   // Apply active filters to get displayed days
   const displayedDays = useMemo(() => {

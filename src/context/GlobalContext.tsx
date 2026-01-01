@@ -144,13 +144,16 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   
   // Toggle Task Completion
   const toggleTask = (id: string) => {
-    setTasks(prev =>
-      prev.map(task =>
-        task.id === id
+    console.log('🔄 toggleTask called with id:', id)
+    setTasks(prev => {
+      const updated = prev.map(task =>
+        String(task.id) === String(id)
           ? { ...task, status: task.status === 'done' ? 'open' : 'done' }
           : task
       )
-    )
+      console.log('✅ Tasks updated in context. New task list:', updated)
+      return updated
+    })
   }
   
   // Add Task
