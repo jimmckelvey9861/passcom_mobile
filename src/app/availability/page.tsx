@@ -430,18 +430,19 @@ function AvailabilityHubContent() {
     }
     
     // Check for time off requests
-    // Get the current cell's date and time
-    const cellDate = new Date(currentWeekStart)
-    cellDate.setDate(cellDate.getDate() + dayIndex)
-    const cellDateStr = cellDate.toISOString().split('T')[0] // YYYY-MM-DD
+    // Calculate the exact datetime for this cell's slot
+    const cellDateTime = new Date(currentWeekStart)
+    cellDateTime.setDate(cellDateTime.getDate() + dayIndex)
+    const hour = Math.floor(slotIndex / 2)
+    const minute = (slotIndex % 2) * 30
+    cellDateTime.setHours(hour, minute, 0, 0)
     
-    // Check if any time off request covers this cell
+    // Check if any time off request covers this specific time slot
     const timeOffRequest = timeOffRequests.find(request => {
-      // Extract date part only from request dates (they might include time)
-      const requestStartDate = request.startDate.split('T')[0]
-      const requestEndDate = request.endDate.split('T')[0]
-      // Check if cell date is within request date range
-      return cellDateStr >= requestStartDate && cellDateStr <= requestEndDate
+      const requestStart = new Date(request.startDate)
+      const requestEnd = new Date(request.endDate)
+      // Check if cell time falls within request time range
+      return cellDateTime >= requestStart && cellDateTime < requestEnd
     })
     
     if (timeOffRequest) {
@@ -1031,30 +1032,36 @@ function AvailabilityHubContent() {
                 </div>
               </div>
 
-              {/* Step 2: Dates */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Starts
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+              {/* Step 2: Date & Time */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Date & Time</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                      Start Date & Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                      End Date & Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Ends
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  ⏰ Set both the date and time for your request
+                </p>
               </div>
 
               {/* Step 3: Reason */}
