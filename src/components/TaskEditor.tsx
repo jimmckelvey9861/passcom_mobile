@@ -766,7 +766,7 @@ export function TaskEditor({ isVisible, onClose, onSave, onDelete, onComplete, i
               onClick={() => setIsBountySheetOpen(true)}
               className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 h-auto py-1 text-base"
             >
-              Configure
+              Set
           </Button>
         </div>
       </div>
