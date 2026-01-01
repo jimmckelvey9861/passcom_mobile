@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, Repeat, Calendar as CalendarIcon, List, Sun, Thermometer, CircleSlash, Star, Plus } from "lucide-react"
+import { ArrowLeft, ChevronRight, Repeat, Calendar as CalendarIcon, List, Sun, Thermometer, CircleSlash, Star, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { WeeklyAvailability } from '@/types/availability'
 import { createEmptySchedule, SLOT_STATUS, DAYS_OF_WEEK } from '@/types/availability'
@@ -540,14 +540,12 @@ function AvailabilityHubContent() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b px-4 py-2 flex items-center gap-2 z-20 h-14">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-10 w-10 -ml-2 rounded-full hover:bg-gray-100 text-gray-700"
+        <button 
+          className="h-12 w-12 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors -ml-2"
           onClick={() => router.back()}
         >
-          <ChevronLeft className="h-6 w-6" />
-        </Button>
+          <ArrowLeft className="h-[30px] w-[30px]" strokeWidth={2.5} />
+        </button>
         <h1 className="text-lg font-semibold flex-1">Availability</h1>
       </div>
 

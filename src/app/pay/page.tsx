@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, Zap } from "lucide-react"
+import { ArrowLeft, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import BottomNav from "@/components/BottomNav"
 
@@ -17,14 +17,12 @@ export default function PayDashboardPage() {
     <div className="min-h-screen bg-white flex flex-col pb-20">
       {/* Sticky Header */}
       <div className="sticky top-0 bg-white border-b px-4 py-4 flex items-center z-10">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-10 w-10 -ml-2 absolute left-2"
+        <button 
+          className="h-12 w-12 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors -ml-2 absolute left-2"
           onClick={() => router.back()}
         >
-          <ChevronLeft className="h-6 w-6" />
-        </Button>
+          <ArrowLeft className="h-[30px] w-[30px]" strokeWidth={2.5} />
+        </button>
         <h1 className="text-lg font-semibold flex-1 text-center">Pay</h1>
       </div>
 

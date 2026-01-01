@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft, Plus, Search, Megaphone, Users, MessageCircle, X } from "lucide-react"
+import { ArrowLeft, Plus, Search, Megaphone, Users, MessageCircle, X } from "lucide-react"
 import BottomNav from "@/components/BottomNav"
 
 type TabType = "channels" | "direct"
@@ -86,9 +86,9 @@ function ChatInboxContent() {
       <div className="sticky top-0 bg-white border-b px-4 py-2 flex items-center gap-2 z-10 h-14">
         <button
           onClick={() => router.push("/")}
-          className="h-10 w-10 -ml-2 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-700 transition-colors"
+          className="h-10 w-10 -ml-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
         >
-          <ChevronLeft className="h-6 w-6" strokeWidth={2} />
+          <ArrowLeft className="h-[30px] w-[30px] text-blue-600" strokeWidth={2} />
         </button>
         <h1 className="text-xl font-bold text-gray-900 flex-1">Messages</h1>
         <button

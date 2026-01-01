@@ -306,13 +306,13 @@ function TimeClockContent() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col pb-20">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b px-4 py-4 flex items-center justify-between z-10 shadow-sm">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           className="h-10 w-10 -ml-2"
           onClick={() => router.back()}
         >
-          <ArrowLeft className="h-6 w-6 text-blue-500" />
+          <ArrowLeft className="h-[30px] w-[30px] text-blue-600" />
         </Button>
         <h1 className="text-lg font-semibold">Time Clock</h1>
         <Button variant="ghost" size="icon" className="h-10 w-10 -mr-2">
