@@ -160,10 +160,24 @@ export function TaskEditor({ isVisible, onClose, onSave, onDelete, onComplete, i
       setBillableRate((initialTask as any).billableRate || 5.00)
       setBountyAutoApprove((initialTask as any).bountyAutoApprove || false)
       if (initialTask.startTime) {
-        setStartDateTime(new Date(initialTask.startTime).toISOString().slice(0, 16))
+        // Convert UTC time back to local datetime string for display
+        const date = new Date(initialTask.startTime)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        const hours = String(date.getHours()).padStart(2, '0')
+        const minutes = String(date.getMinutes()).padStart(2, '0')
+        setStartDateTime(`${year}-${month}-${day}T${hours}:${minutes}`)
       }
       if (initialTask.dueTime) {
-        setDueDateTime(new Date(initialTask.dueTime).toISOString().slice(0, 16))
+        // Convert UTC time back to local datetime string for display
+        const date = new Date(initialTask.dueTime)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        const hours = String(date.getHours()).padStart(2, '0')
+        const minutes = String(date.getMinutes()).padStart(2, '0')
+        setDueDateTime(`${year}-${month}-${day}T${hours}:${minutes}`)
         setIsDueTimeExplicitlySet(true)
       }
     } else {
