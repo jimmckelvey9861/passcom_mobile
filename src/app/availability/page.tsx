@@ -499,7 +499,6 @@ function AvailabilityHubContent() {
   const upcomingRequests = timeOffRequests.map(request => {
     const startDate = new Date(request.startDate)
     const endDate = new Date(request.endDate)
-    const durationDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
     
     const statusColors = {
       pending: "bg-yellow-50 text-yellow-700 border-yellow-200",
@@ -507,12 +506,28 @@ function AvailabilityHubContent() {
       denied: "bg-red-50 text-red-700 border-red-200"
     }
     
+    // Format time range with dates and times
+    const startTime = startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    const endTime = endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    const sameDay = startDate.toDateString() === endDate.toDateString()
+    
+    let duration
+    if (sameDay) {
+      // Same day: "3:00 PM - 4:00 PM"
+      duration = `${startTime} - ${endTime}`
+    } else {
+      // Different days: "Jan 3, 3:00 PM - Jan 5, 4:00 PM"
+      const startDateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      const endDateStr = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      duration = `${startDateStr}, ${startTime} - ${endDateStr}, ${endTime}`
+    }
+    
     return {
       id: request.id,
       month: startDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
       day: startDate.getDate().toString(),
       title: request.type.toUpperCase(),
-      duration: durationDays === 1 ? "1 day" : `${durationDays} days`,
+      duration,
       status: request.status.charAt(0).toUpperCase() + request.status.slice(1),
       statusColor: statusColors[request.status]
     }
