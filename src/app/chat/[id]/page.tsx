@@ -396,8 +396,8 @@ function ChatConversationContent() {
       </div>
 
       {/* Input Area (Sticky Bottom) */}
-      <div className="sticky bottom-0 bg-white border-t px-4 py-3">
-        <div className="flex items-center gap-3">
+      <div className="sticky bottom-0 bg-white border-t px-3 py-2.5">
+        <div className="flex items-center gap-2 max-w-full">
           {/* Plus Button */}
           <button
             onClick={() => setIsAttachmentSheetOpen(true)}
@@ -413,7 +413,7 @@ function ChatConversationContent() {
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 min-w-0 px-4 py-2.5 bg-gray-100 rounded-full text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           {/* Send Button */}
