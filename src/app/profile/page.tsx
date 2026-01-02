@@ -10,7 +10,7 @@ import { useGlobalApp } from "@/context/GlobalContext"
 function ProfileContent() {
   const router = useRouter()
   const photoInputRef = useRef<HTMLInputElement>(null)
-  const { profilePhoto, setProfilePhoto } = useGlobalApp()
+  const { profilePhoto, setProfilePhoto, userProfile, updateUserProfile } = useGlobalApp()
   
   // Editor state
   const [isEditorOpen, setIsEditorOpen] = useState(false)
@@ -96,7 +96,7 @@ function ProfileContent() {
         </button>
         
         {/* Name */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Jim McKelvey</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">{userProfile.name}</h1>
         
         {/* Role */}
         <p className="text-sm text-gray-500 mb-4">Shift Lead • Level 3</p>
@@ -161,7 +161,7 @@ function ProfileContent() {
               </div>
               <div>
                 <div className="text-sm text-gray-500">Full Name</div>
-                <div className="text-base font-medium text-gray-900">Jim McKelvey</div>
+                <div className="text-base font-medium text-gray-900">{userProfile.name}</div>
               </div>
             </div>
           </div>
@@ -174,7 +174,7 @@ function ProfileContent() {
               </div>
               <div>
                 <div className="text-sm text-gray-500">Email</div>
-                <div className="text-base font-medium text-gray-900">jim@example.com</div>
+                <div className="text-base font-medium text-gray-900">{userProfile.email}</div>
               </div>
             </div>
             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -188,7 +188,7 @@ function ProfileContent() {
               </div>
               <div>
                 <div className="text-sm text-gray-500">Phone</div>
-                <div className="text-base font-medium text-gray-900">(555) 123-4567</div>
+                <div className="text-base font-medium text-gray-900">{userProfile.phone}</div>
               </div>
             </div>
             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -202,7 +202,7 @@ function ProfileContent() {
               </div>
               <div>
                 <div className="text-sm text-gray-500">Address</div>
-                <div className="text-base font-medium text-gray-900">123 Main St, New York, NY 10001</div>
+                <div className="text-base font-medium text-gray-900">{userProfile.address}</div>
               </div>
             </div>
           </div>

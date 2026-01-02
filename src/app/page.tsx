@@ -4,11 +4,23 @@ import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react"
 import BottomNav from "@/components/BottomNav"
+import { useGlobalApp } from "@/context/GlobalContext"
 
 function HomeContent() {
   const router = useRouter()
+  const { userProfile, profilePhoto } = useGlobalApp()
   const [showEarnings, setShowEarnings] = useState(true)
   const earnings = 127.5
+  
+  // Get initials from name
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
 
   const alerts = [
     {
@@ -67,9 +79,13 @@ function HomeContent() {
           onClick={() => router.push("/profile")}
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          <span className="text-base font-bold text-gray-900">John Smith</span>
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">JS</span>
+          <span className="text-base font-bold text-gray-900">{userProfile.name}</span>
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden">
+            {profilePhoto ? (
+              <img src={profilePhoto} alt={userProfile.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white text-xs font-bold">{getInitials(userProfile.name)}</span>
+            )}
           </div>
         </button>
       </div>

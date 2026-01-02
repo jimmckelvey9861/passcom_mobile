@@ -31,6 +31,13 @@ export interface ShiftState {
   startTime: Date | null
 }
 
+export interface UserProfile {
+  name: string
+  email: string
+  phone: string
+  address: string
+}
+
 // Chat Message Types
 type BaseMessage = {
   id: number
@@ -89,6 +96,7 @@ interface GlobalContextType {
   tasks: Task[]
   chats: Record<string, Message[]>
   profilePhoto: string | null
+  userProfile: UserProfile
   clockIn: () => void
   clockOut: () => void
   toggleTask: (id: string) => void
@@ -97,6 +105,7 @@ interface GlobalContextType {
   deleteTask: (id: string) => void
   sendMessage: (userId: string, message: Message) => void
   setProfilePhoto: (photo: string | null) => void
+  updateUserProfile: (profile: Partial<UserProfile>) => void
 }
 
 // Create Context
@@ -189,11 +198,24 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
   // Profile photo with localStorage persistence
   const [profilePhoto, setProfilePhotoState] = useState<string | null>(null)
   
-  // Load profile photo from localStorage on mount
+  // User profile with localStorage persistence
+  const [userProfile, setUserProfileState] = useState<UserProfile>({
+    name: 'Jim McKelvey',
+    email: 'jim@example.com',
+    phone: '(555) 123-4567',
+    address: '123 Main St, New York, NY 10001'
+  })
+  
+  // Load profile data from localStorage on mount
   useEffect(() => {
     const savedPhoto = localStorage.getItem('profilePhoto')
     if (savedPhoto) {
       setProfilePhotoState(savedPhoto)
+    }
+    
+    const savedProfile = localStorage.getItem('userProfile')
+    if (savedProfile) {
+      setUserProfileState(JSON.parse(savedProfile))
     }
   }, [])
   
@@ -205,6 +227,13 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     } else {
       localStorage.removeItem('profilePhoto')
     }
+  }
+  
+  // Update user profile and save to localStorage
+  const updateUserProfile = (updates: Partial<UserProfile>) => {
+    const newProfile = { ...userProfile, ...updates }
+    setUserProfileState(newProfile)
+    localStorage.setItem('userProfile', JSON.stringify(newProfile))
   }
   
   // Clock In
@@ -269,6 +298,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     tasks,
     chats,
     profilePhoto,
+    userProfile,
     clockIn,
     clockOut,
     toggleTask,
@@ -276,7 +306,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     updateTask,
     deleteTask,
     sendMessage,
-    setProfilePhoto
+    setProfilePhoto,
+    updateUserProfile
   }
   
   return (
