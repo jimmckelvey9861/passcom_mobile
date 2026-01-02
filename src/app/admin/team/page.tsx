@@ -125,10 +125,10 @@ export default function TeamRosterPage() {
     const isActive = employee.status === "clocked-in" || employee.status === "break"
     
     return (
-      <button
+      <div
         key={employee.id}
         onClick={() => handleEmployeeClick(employee)}
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer"
       >
         {/* Avatar with status indicator */}
         <div className="relative shrink-0">
@@ -197,7 +197,7 @@ export default function TeamRosterPage() {
             </button>
           </div>
         )}
-      </button>
+      </div>
     )
   }
 
