@@ -1,154 +1,82 @@
-"use client"
+'use client'
 
-import { useRouter } from "next/navigation"
-import { ArrowLeft, User, Mail, Phone, MapPin, Shirt, CheckCircle } from "lucide-react"
-import { useGlobalApp } from "@/context/GlobalContext"
+import Link from "next/link"
+import { ChevronLeft, User, Home, Mail, Phone, Shirt, Building2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function MyInfoPage() {
-  const router = useRouter()
-  const { userProfile } = useGlobalApp()
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-safe">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b px-4 py-2 flex items-center gap-2 z-10 h-14">
-        <button 
-          className="h-12 w-12 rounded-full flex items-center justify-center hover:bg-blue-50 text-blue-600 transition-colors -ml-2"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-[30px] w-[30px]" strokeWidth={2.5} />
-        </button>
+      <div className="bg-white border-b px-4 py-4 flex items-center gap-4 sticky top-0 z-10">
+        <Link href="/profile">
+          <Button variant="ghost" size="icon" className="h-10 w-10">
+            <ChevronLeft className="h-6 w-6 text-blue-500" />
+          </Button>
+        </Link>
         <h1 className="text-lg font-semibold flex-1">My Info</h1>
       </div>
 
-      {/* Personal Information */}
-      <div className="mt-6">
-        <h2 className="px-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">Personal Information</h2>
-        <div className="bg-white border-y border-gray-100 divide-y divide-gray-100">
-          {/* Name */}
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                <User className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Name</div>
-                <div className="text-base font-medium text-gray-900">{userProfile.name}</div>
-              </div>
-            </div>
+      {/* Content */}
+      <div className="py-4 space-y-6">
+        {/* Personal Section */}
+        <div className="bg-white border-y border-gray-200">
+          <div className="px-6 py-3 border-b border-gray-100">
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Personal</h2>
           </div>
-
-          {/* Address */}
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-orange-50 flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Address</div>
-                <div className="text-base font-medium text-gray-900">{userProfile.address}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Email */}
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-purple-50 flex items-center justify-center">
-                <Mail className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Email</div>
-                <div className="text-base font-medium text-gray-900">{userProfile.email}</div>
-              </div>
-            </div>
-            <CheckCircle className="h-5 w-5 text-green-500" />
-          </div>
-
-          {/* Mobile */}
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center">
-                <Phone className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Mobile</div>
-                <div className="text-base font-medium text-gray-900">{userProfile.phone}</div>
-              </div>
-            </div>
-            <CheckCircle className="h-5 w-5 text-green-500" />
-          </div>
+          <InfoRow icon={User} label="Name" value="Jim McKelvey" />
+          <InfoRow icon={Home} label="Address" value="123 Main St, New York, NY 10001" />
+          <InfoRow icon={Mail} label="Email" value="jim@example.com" badge="Verified" />
+          <InfoRow icon={Phone} label="Mobile" value="(555) 123-4567" badge="Verified" />
         </div>
-      </div>
 
-      {/* Uniform Sizes */}
-      <div className="mt-6">
-        <h2 className="px-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">Uniform Sizes</h2>
-        <div className="bg-white border-y border-gray-100 divide-y divide-gray-100">
-          <div className="px-4 py-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-indigo-50 flex items-center justify-center">
-                <Shirt className="h-5 w-5 text-indigo-600" />
-              </div>
-              <span className="text-base font-medium text-gray-900">Sizes</span>
-            </div>
-            <div className="flex gap-2 ml-13">
-              <span className="px-3 py-1.5 bg-gray-100 rounded-full text-sm font-medium text-gray-700">Shirt: L</span>
-              <span className="px-3 py-1.5 bg-gray-100 rounded-full text-sm font-medium text-gray-700">Pants: 32</span>
-              <span className="px-3 py-1.5 bg-gray-100 rounded-full text-sm font-medium text-gray-700">Shoe: 10.5</span>
-            </div>
+        {/* Uniform Sizes Section */}
+        <div className="bg-white border-y border-gray-200">
+          <div className="px-6 py-3 border-b border-gray-100">
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Uniform Sizes</h2>
           </div>
+          <InfoRow icon={Shirt} label="Shirt" value="L" />
+          <InfoRow icon={Shirt} label="Pants" value="32" />
+          <InfoRow icon={Shirt} label="Shoe" value="10.5" />
         </div>
-      </div>
 
-      {/* Location */}
-      <div className="mt-6">
-        <h2 className="px-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">Location</h2>
-        <div className="bg-white border-y border-gray-100">
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Primary Location</div>
-                <div className="text-base font-medium text-gray-900">Chelsea Market</div>
-              </div>
-            </div>
+        {/* Location Section */}
+        <div className="bg-white border-y border-gray-200">
+          <div className="px-6 py-3 border-b border-gray-100">
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Location</h2>
           </div>
+          <InfoRow icon={Building2} label="Primary" value="Chelsea Market" />
         </div>
-      </div>
 
-      {/* Emergency Contact */}
-      <div className="mt-6 mb-6">
-        <h2 className="px-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">Emergency Contact</h2>
-        <div className="bg-white border-y border-gray-100 divide-y divide-gray-100">
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
-                <Phone className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Phone</div>
-                <div className="text-base font-medium text-gray-900">(555) 987-6543</div>
-              </div>
-            </div>
+        {/* Emergency Contact Section */}
+        <div className="bg-white border-y border-gray-200">
+          <div className="px-6 py-3 border-b border-gray-100">
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Emergency Contact</h2>
           </div>
-
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-pink-50 flex items-center justify-center">
-                <Mail className="h-5 w-5 text-pink-600" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Email</div>
-                <div className="text-base font-medium text-gray-900">emergency@example.com</div>
-              </div>
-            </div>
-          </div>
+          <InfoRow icon={User} label="Name" value="Emergency Contact" />
+          <InfoRow icon={Phone} label="Phone" value="(555) 987-6543" />
+          <InfoRow icon={User} label="Relationship" value="Spouse" />
         </div>
       </div>
     </div>
   )
 }
 
+function InfoRow({ icon: Icon, label, value, badge }: any) {
+  return (
+    <div className="flex items-start gap-3 px-6 py-4 border-b border-gray-100 last:border-0">
+      <Icon className="h-5 w-5 text-gray-400 mt-0.5 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-gray-500 mb-1">{label}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-base text-gray-900 font-medium">{value}</p>
+          {badge && (
+            <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold uppercase rounded-full">
+              {badge}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
