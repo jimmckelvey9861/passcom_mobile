@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import BottomNav from "@/components/BottomNav"
 
 export default function PayDashboardPage() {
   const router = useRouter()
@@ -205,8 +204,6 @@ export default function PayDashboardPage() {
         </Button>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav />
     </div>
   )
 }

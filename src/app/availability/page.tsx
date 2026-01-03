@@ -60,7 +60,7 @@ function getSlotColor(status: number, dayIndex: number, slotIndex: number): stri
 
 function AvailabilityHubContent() {
   const router = useRouter()
-  const { userProfile, addRequest, requests: globalRequests } = useGlobalApp()
+  const { userProfile, addRequest, requests: globalRequests, setBottomSheetOpen } = useGlobalApp()
   
   // Tab State
   const [activeTab, setActiveTab] = useState<"pattern" | "calendar" | "requests">("pattern")
@@ -352,6 +352,7 @@ function AvailabilityHubContent() {
     
     // Open the time off request drawer
     setIsRequestSheetOpen(true)
+    setBottomSheetOpen(true)
     
     // Reset selection
     setIsSelectingTime(false)
@@ -610,6 +611,7 @@ function AvailabilityHubContent() {
     
     // Reset and close
     setIsRequestSheetOpen(false)
+    setBottomSheetOpen(false)
     setSelectedType(null)
     setStartDate("")
     setEndDate("")
@@ -1012,7 +1014,10 @@ function AvailabilityHubContent() {
       {activeTab === "requests" && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 z-10">
           <button
-            onClick={() => setIsRequestSheetOpen(true)}
+            onClick={() => {
+              setIsRequestSheetOpen(true)
+              setBottomSheetOpen(true)
+            }}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
           >
             <Plus className="h-5 w-5" />
@@ -1027,7 +1032,10 @@ function AvailabilityHubContent() {
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/50 z-30"
-            onClick={() => setIsRequestSheetOpen(false)}
+            onClick={() => {
+              setIsRequestSheetOpen(false)
+              setBottomSheetOpen(false)
+            }}
           />
 
           {/* Sheet */}
@@ -1036,7 +1044,10 @@ function AvailabilityHubContent() {
             <div className="sticky top-0 bg-white border-b px-4 py-4 flex items-center justify-between rounded-t-2xl">
               <h2 className="text-lg font-semibold">New Time Off Request</h2>
               <button
-                onClick={() => setIsRequestSheetOpen(false)}
+                onClick={() => {
+                  setIsRequestSheetOpen(false)
+                  setBottomSheetOpen(false)
+                }}
                 className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500"
               >
                 ✕
@@ -1115,6 +1126,7 @@ function AvailabilityHubContent() {
                 <button
                   onClick={() => {
                     setIsRequestSheetOpen(false)
+                    setBottomSheetOpen(false)
                     setSelectedType(null)
                     setStartDate("")
                     setEndDate("")

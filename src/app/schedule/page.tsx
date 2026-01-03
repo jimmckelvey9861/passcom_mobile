@@ -6,7 +6,6 @@ import { ArrowLeft, User, Users, Bell, Search, X, CalendarCheck } from "lucide-r
 import { Input } from "@/components/ui/input"
 import { ShiftCard } from "@/components/ShiftCard"
 import { Shift, generateShiftsForDays, calculateShiftHours } from "@/data/dummyShifts"
-import BottomNav from "@/components/BottomNav"
 
 // Helper functions for date manipulation
 const getStartOfWeek = (date: Date) => {
@@ -872,9 +871,6 @@ function SchedulePageContent() {
           </div>
         ))}
       </div>
-
-      {/* Bottom Navigation */}
-      <BottomNav />
     </div>
   )
 }

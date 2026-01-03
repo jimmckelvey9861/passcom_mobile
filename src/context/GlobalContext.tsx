@@ -108,6 +108,7 @@ interface GlobalContextType {
   profilePhoto: string | null
   userProfile: UserProfile
   requests: Request[]
+  isBottomSheetOpen: boolean
   clockIn: () => void
   clockOut: () => void
   toggleTask: (id: string) => void
@@ -119,6 +120,7 @@ interface GlobalContextType {
   updateUserProfile: (profile: Partial<UserProfile>) => void
   addRequest: (request: Request) => void
   updateRequestStatus: (id: string, newStatus: 'approved' | 'denied') => void
+  setBottomSheetOpen: (isOpen: boolean) => void
 }
 
 // Create Context
@@ -241,6 +243,9 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     }
   ])
   
+  // Bottom sheet state
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false)
+  
   // Load profile data from localStorage on mount
   useEffect(() => {
     const savedPhoto = localStorage.getItem('profilePhoto')
@@ -351,6 +356,7 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     profilePhoto,
     userProfile,
     requests,
+    isBottomSheetOpen,
     clockIn,
     clockOut,
     toggleTask,
@@ -361,7 +367,8 @@ export function GlobalProvider({ children }: { children: ReactNode }) {
     setProfilePhoto,
     updateUserProfile,
     addRequest,
-    updateRequestStatus
+    updateRequestStatus,
+    setBottomSheetOpen: setIsBottomSheetOpen
   }
   
   return (

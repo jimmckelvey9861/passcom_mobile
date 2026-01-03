@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Calendar } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
+import { useGlobalApp } from "@/context/GlobalContext"
 
 export default function ScheduleSettingsPage() {
   const router = useRouter()
+  const { setBottomSheetOpen } = useGlobalApp()
   
   // State
   const [calendarSync, setCalendarSync] = useState(false)
@@ -60,6 +62,7 @@ export default function ScheduleSettingsPage() {
   const handleSaveTime = (minutes: number) => {
     setBeforeShiftTime(minutes)
     setIsTimePickerOpen(false)
+    setBottomSheetOpen(false)
     // TODO: Save to localStorage or backend
   }
 
@@ -68,6 +71,7 @@ export default function ScheduleSettingsPage() {
       setNotifyBeforeShift(true)
     }
     setIsTimePickerOpen(true)
+    setBottomSheetOpen(true)
   }
 
   return (
@@ -123,7 +127,10 @@ export default function ScheduleSettingsPage() {
                     checked={notifyBeforeShift} 
                     onCheckedChange={(checked) => {
                       setNotifyBeforeShift(checked)
-                      if (checked) setIsTimePickerOpen(true)
+                      if (checked) {
+                        setIsTimePickerOpen(true)
+                        setBottomSheetOpen(true)
+                      }
                     }} 
                   />
                 </div>
@@ -177,7 +184,10 @@ export default function ScheduleSettingsPage() {
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/50 z-40 animate-in fade-in duration-200"
-            onClick={() => setIsTimePickerOpen(false)}
+            onClick={() => {
+              setIsTimePickerOpen(false)
+              setBottomSheetOpen(false)
+            }}
           />
 
           {/* Sheet */}

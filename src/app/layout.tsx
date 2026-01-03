@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { GlobalProvider } from "@/context/GlobalContext";
+import ConditionalBottomNav from "@/components/ConditionalBottomNav";
 
 export const metadata: Metadata = {
   title: "Passcom Mobile",
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body>
         <GlobalProvider>
           {children}
+          <ConditionalBottomNav />
         </GlobalProvider>
       </body>
     </html>

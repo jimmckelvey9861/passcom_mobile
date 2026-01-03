@@ -3,7 +3,6 @@
 import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Plus, Search, Megaphone, Users, MessageCircle, X } from "lucide-react"
-import BottomNav from "@/components/BottomNav"
 
 type TabType = "channels" | "direct"
 
@@ -284,8 +283,6 @@ function ChatInboxContent() {
         </>
       )}
 
-      {/* Bottom Navigation */}
-      <BottomNav />
     </div>
   )
 }

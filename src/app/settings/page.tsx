@@ -3,7 +3,6 @@
 import { Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, ChevronRight, Palette, Accessibility, Lock, Bell, User } from "lucide-react"
-import BottomNav from "@/components/BottomNav"
 
 function SettingsContent() {
   const router = useRouter()
@@ -84,9 +83,6 @@ function SettingsContent() {
           })}
         </div>
       </div>
-
-      {/* Bottom Navigation */}
-      <BottomNav />
     </div>
   )
 }

@@ -3,7 +3,6 @@
 import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react"
-import BottomNav from "@/components/BottomNav"
 import { useGlobalApp } from "@/context/GlobalContext"
 
 function HomeContent() {
@@ -140,9 +139,6 @@ function HomeContent() {
           </div>
         </div>
       </div>
-
-      {/* Bottom Navigation */}
-      <BottomNav />
     </div>
   )
 }

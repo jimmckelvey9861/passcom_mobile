@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Bell, Play, Square, Coffee, DollarSign, Clock, MapPin, AlertCircle, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import BottomNav from "@/components/BottomNav"
 import { useGlobalApp } from "@/context/GlobalContext"
 
 interface Break {
@@ -650,8 +649,6 @@ function TimeClockContent() {
         </>
       )}
 
-      {/* Bottom Navigation */}
-      <BottomNav />
     </div>
   )
 }
