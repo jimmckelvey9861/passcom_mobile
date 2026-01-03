@@ -7,6 +7,7 @@ import { useGlobalApp } from "@/context/GlobalContext"
 function HomeContent() {
   const router = useRouter()
   const { userProfile, profilePhoto } = useGlobalApp()
+  const availableBalance = 342.50 // TODO: Fetch from backend/global state
   
   // Get initials from name
   const getInitials = (name: string) => {
@@ -60,7 +61,7 @@ function HomeContent() {
           onClick={() => router.push("/pay")}
           className="px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition-colors"
         >
-          Pay
+          ${availableBalance.toFixed(2)}
         </button>
 
         <button
