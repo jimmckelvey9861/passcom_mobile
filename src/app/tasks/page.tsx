@@ -1218,7 +1218,7 @@ function TasksPageContent() {
       </div>
 
       {/* 4. FIXED CREATE TASK BUTTON */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t z-40">
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-white border-t z-40">
         <button
           onClick={() => setIsTaskEditorOpen(true)}
           className="w-full h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-medium shadow-lg flex items-center justify-center"
