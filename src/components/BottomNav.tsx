@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { Home, CheckSquare, Calendar, MessageCircle, User, Bug } from "lucide-react"
+import { Home, CheckSquare, Clock, Calendar, MessageCircle, Bug } from "lucide-react"
 
 export default function BottomNav() {
   const pathname = usePathname()
@@ -9,10 +9,10 @@ export default function BottomNav() {
 
   const navItems = [
     { id: "home", label: "Home", icon: Home, path: "/" },
-    { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
     { id: "tasks", label: "Tasks", icon: CheckSquare, path: "/tasks" },
+    { id: "clock", label: "Clock", icon: Clock, path: "/time-clock" },
+    { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
     { id: "chat", label: "Chat", icon: MessageCircle, path: "/chat" },
-    { id: "profile", label: "Profile", icon: User, path: "/profile" },
   ]
 
   const isActive = (path: string) => {
