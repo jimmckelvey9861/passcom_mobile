@@ -1,15 +1,12 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
 import { useGlobalApp } from "@/context/GlobalContext"
 
 function HomeContent() {
   const router = useRouter()
   const { userProfile, profilePhoto } = useGlobalApp()
-  const [showEarnings, setShowEarnings] = useState(true)
-  const earnings = 127.5
   
   // Get initials from name
   const getInitials = (name: string) => {
@@ -59,20 +56,12 @@ function HomeContent() {
     <div className="min-h-screen bg-white pb-20">
       {/* Header */}
       <div className="bg-white border-b px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => router.push("/pay")}
-            className="text-xl font-bold text-green-600 hover:text-green-700 transition-colors"
-          >
-            {showEarnings ? `$${earnings.toFixed(2)}` : "•••••"}
-          </button>
-          <button
-            onClick={() => setShowEarnings(!showEarnings)}
-            className="h-6 w-6 flex items-center justify-center text-gray-400 hover:text-gray-600"
-          >
-            {showEarnings ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-          </button>
-        </div>
+        <button
+          onClick={() => router.push("/pay")}
+          className="px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition-colors"
+        >
+          Pay
+        </button>
 
         <button
           onClick={() => router.push("/profile")}
