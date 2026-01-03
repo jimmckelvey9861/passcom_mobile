@@ -1,18 +1,37 @@
 "use client"
 
-import { Suspense } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, ChevronRight, FileText, Download } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ArrowLeft, ChevronRight, FileText, Shield, Clipboard, Award } from "lucide-react"
 
-function DocumentsContent() {
+export default function DocumentsPage() {
   const router = useRouter()
 
-  const payStubs = [
-    { id: 1, period: "Nov 1 - 15, 2024", amount: "$1,240.50" },
-    { id: 2, period: "Oct 16 - 31, 2024", amount: "$1,185.00" },
-    { id: 3, period: "Oct 1 - 15, 2024", amount: "$1,312.75" },
+  const documents = [
+    { id: 1, name: "Employee Handbook", icon: FileText, color: "blue" },
+    { id: 2, name: "Safety Training Certificate", icon: Shield, color: "green" },
+    { id: 3, name: "Code of Conduct", icon: Clipboard, color: "purple" },
+    { id: 4, name: "Benefits Summary", icon: Award, color: "orange" },
   ]
+
+  const getIconBgColor = (color: string) => {
+    const colors: Record<string, string> = {
+      blue: "bg-blue-50",
+      green: "bg-green-50",
+      purple: "bg-purple-50",
+      orange: "bg-orange-50",
+    }
+    return colors[color] || "bg-gray-50"
+  }
+
+  const getIconColor = (color: string) => {
+    const colors: Record<string, string> = {
+      blue: "text-blue-600",
+      green: "text-green-600",
+      purple: "text-purple-600",
+      orange: "text-orange-600",
+    }
+    return colors[color] || "text-gray-600"
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,70 +46,37 @@ function DocumentsContent() {
         <h1 className="text-lg font-semibold flex-1">Documents</h1>
       </div>
 
-      <div className="flex-1 overflow-auto py-6">
-        {/* Section: Tax Documents */}
-        <div className="mb-6">
-          <h2 className="px-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">Tax Documents</h2>
-          <div className="bg-white border-y border-gray-100 divide-y divide-gray-100">
-            {/* 2024 W-2 */}
-            <button 
-              onClick={() => console.log('Download 2024 W-2')}
-              className="flex items-center justify-between px-4 py-4 w-full hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-base font-medium text-gray-900">2024 W-2</span>
-              </div>
-              <Download className="h-5 w-5 text-gray-400" />
-            </button>
-
-            {/* 2023 W-2 */}
-            <button 
-              onClick={() => console.log('Download 2023 W-2')}
-              className="flex items-center justify-between px-4 py-4 w-full hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-base font-medium text-gray-900">2023 W-2</span>
-              </div>
-              <Download className="h-5 w-5 text-gray-400" />
-            </button>
-          </div>
-        </div>
-
-        {/* Section: Pay Stubs */}
-        <div className="mb-6">
-          <h2 className="px-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">Pay Stubs</h2>
-          <div className="bg-white border-y border-gray-100 divide-y divide-gray-100">
-            {payStubs.map((stub) => (
+      {/* Documents List */}
+      <div className="mt-6">
+        <h2 className="px-4 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wide">HR Documents</h2>
+        <div className="bg-white border-y border-gray-100 divide-y divide-gray-100">
+          {documents.map((doc) => {
+            const Icon = doc.icon
+            return (
               <button 
-                key={stub.id}
-                onClick={() => console.log('View pay stub:', stub.period)}
+                key={doc.id}
+                onClick={() => console.log('View document', doc.id)}
                 className="flex items-center justify-between px-4 py-4 w-full hover:bg-gray-50 transition-colors"
               >
-                <span className="text-base font-medium text-gray-900">{stub.period}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-base font-semibold text-green-700">{stub.amount}</span>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                  <div className={`h-10 w-10 rounded-full ${getIconBgColor(doc.color)} flex items-center justify-center`}>
+                    <Icon className={`h-5 w-5 ${getIconColor(doc.color)}`} />
+                  </div>
+                  <span className="text-base font-medium text-gray-900">{doc.name}</span>
                 </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
-            ))}
-          </div>
+            )
+          })}
         </div>
+      </div>
+
+      {/* Placeholder Text */}
+      <div className="px-4 py-6">
+        <p className="text-sm text-gray-500 text-center">
+          Additional documents will appear here as they become available.
+        </p>
       </div>
     </div>
   )
 }
-
-export default function DocumentsPage() {
-  return (
-    <Suspense fallback={null}>
-      <DocumentsContent />
-    </Suspense>
-  )
-}
-
